@@ -18,16 +18,14 @@ export default async function PhoneDetailPage({
     where: { id: phoneId },
     include: { repairs: { orderBy: { performedAt: "desc" } } }
   });
-  if (!phone || phone.status !== "for_sale") notFound();
+  if (!phone || phone.status !== "for_sale" || phone.askingPrice == null) notFound();
 
   const city = phone.city ? getCity(phone.city) : undefined;
-  const price = phone.askingPrice ?? 0;
+  const price = phone.askingPrice;
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10">
-      <Link href="/inventory" className="text-sm text-brand-700 hover:text-brand-900">
-        ← Back to inventory
-      </Link>
+      <Link href="/inventory" className="text-sm text-brand-700 hover:text-brand-900">← Back to inventory</Link>
 
       <div className="mt-6 grid lg:grid-cols-2 gap-10">
         <div className="aspect-square rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-[10rem]">
@@ -39,9 +37,7 @@ export default async function PhoneDetailPage({
           )}
         </div>
         <div>
-          <span className="text-sm uppercase tracking-wide text-brand-600 font-semibold">
-            {phone.brand}
-          </span>
+          <span className="text-sm uppercase tracking-wide text-brand-600 font-semibold">{phone.brand}</span>
           <h1 className="mt-1 text-3xl font-bold text-gray-900">{phone.model}</h1>
           <div className="mt-2 flex flex-wrap gap-2 text-sm">
             {phone.storage && <span className="rounded-full bg-gray-100 px-3 py-1">{phone.storage}</span>}
@@ -52,26 +48,13 @@ export default async function PhoneDetailPage({
           <div className="mt-6 text-4xl font-bold text-brand-700">{money(price)}</div>
           <p className="mt-1 text-sm text-green-700">✓ In stock · Ships within 1 business day</p>
           {city && (
-            <p className="mt-2 text-sm text-gray-600">
-              Listed at our <Link href={`/locations/${city.slug}`} className="text-brand-700 hover:underline">{city.name}</Link> location · ships Canada-wide.
-            </p>
+            <p className="mt-2 text-sm text-gray-600">Listed at our <Link href={`/locations/${city.slug}`} className="text-brand-700 hover:underline">{city.name}</Link> location · ships Canada-wide.</p>
           )}
 
           <div className="mt-6">
-            <AddToCartButton
-              item={{
-                type: "phone",
-                id: phone.id,
-                name: `${phone.brand} ${phone.model}${phone.storage ? ` ${phone.storage}` : ""}`,
-                price,
-                imageUrl: phone.imageUrl
-              }}
-              label="Add to cart"
-            />
+            <AddToCartButton item={{ type: "phone", id: phone.id, name: `${phone.brand} ${phone.model}${phone.storage ? ` ${phone.storage}` : ""}`, price, imageUrl: phone.imageUrl }} label="Add to cart" />
           </div>
-          <p className="mt-3 text-xs text-gray-500">
-            Free shipping on orders over $200. Prefer pickup? <Link href="/contact" className="underline">Contact us</Link>.
-          </p>
+          <p className="mt-3 text-xs text-gray-500">Free shipping on orders over $200. Prefer pickup? <Link href="/contact" className="underline">Contact us</Link>.</p>
 
           {phone.notes && (
             <div className="mt-6 card p-4 bg-amber-50 border-amber-100">
@@ -85,9 +68,7 @@ export default async function PhoneDetailPage({
       {phone.repairs.length > 0 && (
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-gray-900">Service history</h2>
-          <p className="mt-1 text-sm text-gray-600">
-            Full transparency on what we&apos;ve done to this device.
-          </p>
+          <p className="mt-1 text-sm text-gray-600">Full transparency on what we&apos;ve done to this device.</p>
           <ul className="mt-6 space-y-3">
             {phone.repairs.map((r) => (
               <li key={r.id} className="card p-4">

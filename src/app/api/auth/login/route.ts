@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { timingSafeEqual } from "node:crypto";
 import { makeSessionToken, SESSION_COOKIE } from "@/lib/auth";
+
+function safeEqual(a: string, b: string): boolean {
+  const aBuf = Buffer.from(a, "utf8");
+  const bBuf = Buffer.from(b, "utf8");
+  if (aBuf.length !== bBuf.length) return false;
+  return timingSafeEqual(aBuf, bBuf);
+}
 
 export async function POST(req: Request) {
   const form = await req.formData();
@@ -11,7 +19,7 @@ export async function POST(req: Request) {
   if (!expected) {
     return NextResponse.json({ error: "Server not configured (ADMIN_PASSWORD missing)" }, { status: 500 });
   }
-  if (password !== expected) {
+  if (!safeEqual(password, expected)) {
     const url = new URL(req.url);
     url.pathname = "/admin";
     url.searchParams.set("error", "1");

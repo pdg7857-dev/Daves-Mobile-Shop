@@ -18,6 +18,7 @@ type Repair = {
 export default function RepairList({ phoneId, initial }: { phoneId: number; initial: Repair[] }) {
   const router = useRouter();
   const [adding, setAdding] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
     serviceType: "screen",
     description: "",
@@ -27,11 +28,14 @@ export default function RepairList({ phoneId, initial }: { phoneId: number; init
   });
 
   async function add() {
+    if (busy) return;
+    setBusy(true);
     const res = await fetch(`/api/inventory/${phoneId}/repairs`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(form)
     });
+    setBusy(false);
     if (res.ok) {
       setForm({ serviceType: "screen", description: "", partCost: "", laborCost: "", performedBy: "" });
       setAdding(false);
@@ -52,9 +56,7 @@ export default function RepairList({ phoneId, initial }: { phoneId: number; init
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900">Repair history</h2>
         {!adding && (
-          <button onClick={() => setAdding(true)} className="btn-secondary text-sm">
-            + Log repair
-          </button>
+          <button onClick={() => setAdding(true)} className="btn-secondary text-sm">+ Log repair</button>
         )}
       </div>
 
@@ -85,8 +87,8 @@ export default function RepairList({ phoneId, initial }: { phoneId: number; init
             </div>
           </div>
           <div className="flex gap-2 justify-end">
-            <button onClick={() => setAdding(false)} className="btn-secondary">Cancel</button>
-            <button onClick={add} className="btn-primary">Save repair</button>
+            <button onClick={() => setAdding(false)} className="btn-secondary" disabled={busy}>Cancel</button>
+            <button onClick={add} className="btn-primary" disabled={busy}>{busy ? "Saving…" : "Save repair"}</button>
           </div>
         </div>
       )}
@@ -100,22 +102,15 @@ export default function RepairList({ phoneId, initial }: { phoneId: number; init
                 <span className="ml-2 text-xs text-gray-500">{date(r.performedAt)}</span>
                 {r.performedBy && <span className="ml-2 text-xs text-gray-500">by {r.performedBy}</span>}
               </div>
-              <button onClick={() => remove(r.id)} className="text-xs text-red-700 hover:text-red-900">
-                Remove
-              </button>
+              <button onClick={() => remove(r.id)} className="text-xs text-red-700 hover:text-red-900">Remove</button>
             </div>
             {r.description && <p className="mt-1 text-sm text-gray-700">{r.description}</p>}
             {(r.partCost || r.laborCost) && (
-              <div className="mt-2 text-xs text-gray-600">
-                Parts: {money(r.partCost)} · Labor: {money(r.laborCost)} ·{" "}
-                <strong>Total: {money((r.partCost ?? 0) + (r.laborCost ?? 0))}</strong>
-              </div>
+              <div className="mt-2 text-xs text-gray-600">Parts: {money(r.partCost)} · Labor: {money(r.laborCost)} · <strong>Total: {money((r.partCost ?? 0) + (r.laborCost ?? 0))}</strong></div>
             )}
           </li>
         ))}
-        {initial.length === 0 && (
-          <li className="text-sm text-gray-500 py-4">No repairs logged yet.</li>
-        )}
+        {initial.length === 0 && (<li className="text-sm text-gray-500 py-4">No repairs logged yet.</li>)}
       </ul>
     </div>
   );

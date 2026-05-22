@@ -21,10 +21,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const body = await req.json();
 
   const data: Record<string, unknown> = {};
-  for (const k of [
-    "brand", "model", "storage", "color", "condition", "imei", "serial",
-    "status", "purchasedFrom", "notes", "city", "imageUrl", "soldTo"
-  ]) {
+  for (const k of ["brand", "model", "storage", "color", "condition", "imei", "serial", "status", "purchasedFrom", "notes", "city", "imageUrl", "soldTo"]) {
     if (k in body) data[k] = body[k] === "" ? null : body[k];
   }
   for (const k of ["purchasePrice", "askingPrice", "salePrice", "supplierId"]) {
@@ -50,6 +47,17 @@ export async function PATCH(req: Request, { params }: Ctx) {
 export async function DELETE(_req: Request, { params }: Ctx) {
   if (!(await isAdmin())) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const { id } = await params;
-  await prisma.phone.delete({ where: { id: Number(id) } });
-  return NextResponse.json({ ok: true });
+  try {
+    await prisma.phone.delete({ where: { id: Number(id) } });
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Delete failed";
+    if (msg.includes("Foreign key") || msg.includes("constraint")) {
+      return NextResponse.json(
+        { error: "This phone is referenced by an existing order. Cancel the order first or change its status instead of deleting." },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 }

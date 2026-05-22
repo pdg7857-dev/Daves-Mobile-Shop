@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CARRIERS, ORDER_STATUSES, ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/orders";
 
@@ -28,6 +28,15 @@ export default function OrderActions({
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
 
+  // Resync form state when the order changes server-side (after router.refresh()
+  // or after another admin tab updates it).
+  useEffect(() => {
+    setStatus(initialStatus);
+    setTrackingNumber(initialTrackingNumber);
+    setCarrier(initialCarrier);
+    setAdminNotes(initialAdminNotes);
+  }, [initialStatus, initialTrackingNumber, initialCarrier, initialAdminNotes]);
+
   async function save() {
     setBusy(true);
     setError(null);
@@ -49,9 +58,7 @@ export default function OrderActions({
   return (
     <div className="card p-5">
       <h2 className="font-semibold text-gray-900">Update order</h2>
-      <p className="text-xs text-gray-500">
-        Marking as <strong>shipped</strong> finalizes inventory (phones become <em>sold</em>). Marking as <strong>cancelled</strong> restores phones to <em>for sale</em> and replenishes part stock.
-      </p>
+      <p className="text-xs text-gray-500">Marking as <strong>shipped</strong> finalizes inventory (phones become <em>sold</em>). Marking as <strong>cancelled</strong> restores phones to <em>for sale</em> and replenishes part stock.</p>
 
       {error && <div className="mt-3 rounded-md bg-red-50 border border-red-200 text-red-800 text-sm p-3">{error}</div>}
 
@@ -80,12 +87,8 @@ export default function OrderActions({
       </div>
 
       <div className="mt-5 flex items-center justify-between">
-        <span className="text-xs text-gray-500">
-          {savedAt && `Saved ${new Date(savedAt).toLocaleTimeString("en-CA")}`}
-        </span>
-        <button onClick={save} disabled={busy} className="btn-primary">
-          {busy ? "Saving…" : "Save changes"}
-        </button>
+        <span className="text-xs text-gray-500">{savedAt && `Saved ${new Date(savedAt).toLocaleTimeString("en-CA")}`}</span>
+        <button onClick={save} disabled={busy} className="btn-primary">{busy ? "Saving…" : "Save changes"}</button>
       </div>
     </div>
   );
