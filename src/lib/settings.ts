@@ -6,7 +6,11 @@ export type ShippingConfig = {
 };
 
 export async function getSettings() {
-  // Upsert pattern keeps the single-row contract race-safe on cold start.
+  // Read-then-upsert: avoids bumping `updatedAt` on every page load (Prisma
+  // would emit an UPDATE even when `update: {}`). Cold-start race is still
+  // handled by upsert at the end.
+  const existing = await prisma.settings.findUnique({ where: { id: 1 } });
+  if (existing) return existing;
   return prisma.settings.upsert({
     where: { id: 1 },
     update: {},

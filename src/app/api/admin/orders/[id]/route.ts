@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { isAdmin } from "@/lib/auth";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-async function runRestore(
-  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
-  orderId: number
-) {
+async function runRestore(tx: Prisma.TransactionClient, orderId: number) {
   const order = await tx.order.findUnique({
     where: { id: orderId },
     include: { items: true }
@@ -128,6 +126,13 @@ export async function PATCH(req: Request, { params }: Ctx) {
       if ("paymentMethod" in body) data.paymentMethod = body.paymentMethod || null;
 
       if (Object.keys(data).length === 0) {
+        // No timestamps/extra fields to write. If we just did a status swap via
+        // updateMany, the row's status is already current — re-read to return it.
+        // Otherwise (nothing changed at all), just return what we had.
+        if (newStatus && newStatus !== prevStatus) {
+          const fresh = await tx.order.findUnique({ where: { id: orderId }, include: { items: true } });
+          return fresh ?? existing;
+        }
         return existing;
       }
       return tx.order.update({ where: { id: orderId }, data });

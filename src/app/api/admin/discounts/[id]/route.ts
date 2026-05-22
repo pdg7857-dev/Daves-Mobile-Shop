@@ -24,8 +24,16 @@ export async function PATCH(req: Request, { params }: Ctx) {
     if (!Number.isFinite(v) || v <= 0) {
       return NextResponse.json({ error: "Discount value must be positive" }, { status: 400 });
     }
-    const type = (body.discountType as string | undefined) ?? (data.discountType as string | undefined);
-    if (type === "percentage" && v > 100) {
+    // Determine effective type — explicit in the PATCH, else look up the stored row.
+    let effectiveType = (body.discountType as string | undefined) ?? (data.discountType as string | undefined);
+    if (!effectiveType) {
+      const existing = await prisma.discountCode.findUnique({
+        where: { id: Number(id) },
+        select: { discountType: true }
+      });
+      effectiveType = existing?.discountType;
+    }
+    if (effectiveType === "percentage" && v > 100) {
       return NextResponse.json({ error: "Percentage cannot exceed 100" }, { status: 400 });
     }
     data.discountValue = v;
