@@ -17,6 +17,14 @@ class Settings(BaseSettings):
     bot_model: str = "claude-sonnet-4-6"
     bot_max_tokens: int = 1024
 
+    # Storage. "sqlite" persists to `db_path`; "memory" stays in-process.
+    store_backend: str = "sqlite"
+    db_path: str = "data/shop.db"
+
+    # Admin dashboard
+    admin_username: str = "admin"
+    admin_password: str = ""  # disable dashboard auth-fail-open if blank? No — empty = locked.
+
 
 @lru_cache
 def get_settings() -> Settings:

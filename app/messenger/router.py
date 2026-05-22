@@ -6,6 +6,7 @@ from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 
 from app.ai import get_engine
+from app.ai.attachments import InboundAttachment
 from app.config import get_settings
 from app.messenger.send_api import SendAPI
 from app.messenger.verify import verify_signature
@@ -62,18 +63,24 @@ async def receive(
 async def _handle_event(event: dict) -> None:
     sender_id = event.get("sender", {}).get("id")
     message = event.get("message") or {}
-    text = message.get("text")
+    text = message.get("text") or ""
 
-    if not sender_id or not text:
-        # Postbacks, attachments, reads, etc. — add handlers as needed.
-        log.debug("skipping non-text event: %s", event)
+    attachments: list[InboundAttachment] = []
+    for att in message.get("attachments") or []:
+        if att.get("type") == "image":
+            url = (att.get("payload") or {}).get("url")
+            if url:
+                attachments.append(InboundAttachment(kind="image", url=url))
+
+    if not sender_id or (not text and not attachments):
+        log.debug("skipping event with no text or images: %s", event)
         return
 
     send = SendAPI()
     await send.mark_seen(sender_id)
 
     engine = get_engine()
-    reply = engine.handle_message(sender_id, text)
+    reply = engine.handle_message(sender_id, text, attachments=attachments or None)
     if reply is None or not reply.text:
         return
 

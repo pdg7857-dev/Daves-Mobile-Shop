@@ -65,6 +65,40 @@ class InMemoryStore:
     def add_lead(self, lead: Lead) -> None:
         self.get_conversation(lead.sender_id).leads.append(lead)
 
+    def list_conversations(self) -> list[dict]:
+        out = []
+        for sender_id, convo in self._conversations.items():
+            last_ts = convo.messages[-1].ts if convo.messages else 0.0
+            out.append(
+                {
+                    "sender_id": sender_id,
+                    "human_takeover": int(convo.human_takeover),
+                    "msg_count": len(convo.messages),
+                    "last_msg_ts": last_ts,
+                    "lead_count": len(convo.leads),
+                }
+            )
+        out.sort(key=lambda r: r["last_msg_ts"], reverse=True)
+        return out
+
+    def list_leads(self) -> list[dict]:
+        rows = []
+        for convo in self._conversations.values():
+            for lead in convo.leads:
+                rows.append(
+                    {
+                        "sender_id": lead.sender_id,
+                        "kind": lead.kind,
+                        "summary": lead.summary,
+                        "device": lead.device,
+                        "issue": lead.issue,
+                        "contact": lead.contact,
+                        "ts": lead.ts,
+                    }
+                )
+        rows.sort(key=lambda r: r["ts"], reverse=True)
+        return rows
+
 
 _store: Store | None = None
 
@@ -72,5 +106,19 @@ _store: Store | None = None
 def get_store() -> Store:
     global _store
     if _store is None:
-        _store = InMemoryStore()
+        from app.config import get_settings
+
+        settings = get_settings()
+        if settings.store_backend == "sqlite":
+            from app.storage.sqlite_store import SqliteStore
+
+            _store = SqliteStore(settings.db_path)
+        else:
+            _store = InMemoryStore()
     return _store
+
+
+def reset_store_singleton() -> None:
+    """For tests — clears the cached store so the next get_store() rebuilds it."""
+    global _store
+    _store = None

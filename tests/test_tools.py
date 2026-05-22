@@ -2,11 +2,18 @@ from app.ai.tools import ToolRunner
 from app.storage import InMemoryStore
 
 
-def test_quote_repair_returns_stub_quote():
+def test_quote_repair_returns_priced_quote_for_known_device():
     runner = ToolRunner(InMemoryStore(), "user-1")
     result = runner.run("quote_repair", {"device": "iPhone 13", "issue": "cracked screen"})
     assert result["device"] == "iPhone 13"
-    assert result["confident"] is False  # stub data
+    assert result["confident"] is True
+    assert result["price_low"] is not None and result["price_high"] is not None
+
+
+def test_quote_repair_unknown_device_is_not_confident():
+    runner = ToolRunner(InMemoryStore(), "user-1b")
+    result = runner.run("quote_repair", {"device": "Nokia 3310", "issue": "screen"})
+    assert result["confident"] is False
 
 
 def test_capture_lead_persists_to_store():

@@ -5,14 +5,16 @@ for a mobile phone repair / sales / purchasing business.
 
 ## What's in here
 
-- `app/messenger/` — Meta Messenger Platform webhook + Send API client.
-- `app/ai/` — Claude-based reply engine with tool use (quote lookup, lead capture, handoff).
-- `app/intents/` — Intent classifier (repair quote, buy device, sell device, status check, other).
-- `app/quoting/` — Pricing/quote logic. Currently stubbed; swap in real data when ready.
-- `app/storage/` — In-memory conversation + lead store with a `Store` protocol so a real DB drops in later.
+- `app/messenger/` — Meta Messenger Platform webhook + Send API client. Handles text and image attachments.
+- `app/ai/` — Claude-based reply engine with tool use (quote lookup, lead capture, handoff). Vision-capable: customer photos are forwarded to Claude.
+- `app/intents/` — Cheap keyword intent classifier for logging/analytics.
+- `app/quoting/` — JSON-backed price book (`data/price_book.json`) with device + issue alias matching.
+- `app/storage/` — `Store` protocol with two implementations: `InMemoryStore` for tests and `SqliteStore` for prod.
+- `app/admin/` — Tiny HTTP-Basic-auth dashboard at `/admin`: conversation list, transcripts, leads, and a "take over / resume bot" button.
 - `app/config/` — Settings loaded from env vars.
-- `scripts/cli_chat.py` — Local CLI simulator so you can iterate on the AI without Meta in the loop.
-- `tests/` — Smoke tests for the routing and tool layer.
+- `scripts/cli_chat.py` — Local CLI simulator. Supports `/img <path>` to attach a photo.
+- `data/price_book.json` — Edit this to set real prices and turnarounds.
+- `tests/` — 38 tests covering intents, tools, quoting, signature verify, SQLite persistence, image handling, admin auth, and webhook routing.
 
 ## Quick start
 
@@ -23,10 +25,22 @@ cp .env.example .env   # fill in ANTHROPIC_API_KEY at minimum
 
 # Talk to the bot locally (no Meta needed):
 python -m scripts.cli_chat
+# Send a photo:  /img /path/to/damage.jpg my screen broke
 
-# Run the webhook server:
+# Run the webhook + admin server:
 uvicorn app.main:app --reload --port 8000
+
+# Run the tests:
+pytest -q
 ```
+
+## Admin dashboard
+
+Set `ADMIN_USERNAME` and `ADMIN_PASSWORD` in `.env`, then visit
+`http://localhost:8000/admin` and log in. You'll see conversation list,
+transcripts, captured leads, and a button to silence the bot on a thread
+when a human takes over. If `ADMIN_PASSWORD` is blank the dashboard
+returns 503 — it isn't open to anonymous users by accident.
 
 ## Wiring to Messenger
 
@@ -44,7 +58,13 @@ uvicorn app.main:app --reload --port 8000
 - **Tool use, not prompt soup.** Quoting, lead capture, and handoff are Claude
   tools (`app/ai/tools.py`), so the model decides when to invoke them rather
   than us trying to parse free text.
-- **Stub pricing.** `app/quoting/quotes.py` returns plausible numbers from a
-  small in-memory table. Replace `QuoteBook` with a real source when ready.
+- **Real price book.** `data/price_book.json` is the source of truth for
+  pricing. Add device variants under `devices` and add customer-phrasing
+  alternatives under `issue_aliases`. The quote tool reports `confident: false`
+  if either lookup misses, and the system prompt forbids inventing prices.
 - **Handoff.** When the model calls the `request_human` tool, the conversation
-  is flagged in the store and the bot stops auto-replying until cleared.
+  is flagged in the store and the bot stops auto-replying. Clear it from the
+  admin dashboard (or `/handoff off` in the CLI).
+- **Images.** Customer photos from Messenger are downloaded server-side and
+  passed to Claude as base64 image blocks on the current turn only. The
+  transcript persists a `[N photo(s) attached]` placeholder, not the bytes.

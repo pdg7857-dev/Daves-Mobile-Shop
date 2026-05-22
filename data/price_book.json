@@ -1,0 +1,122 @@
+{
+  "_meta": {
+    "currency": "USD",
+    "note": "Edit prices and turnaround per device. Aliases let customer phrasing match canonical issue keys. Delete the _example_ row and add real numbers before going live."
+  },
+  "issue_aliases": {
+    "screen": ["cracked screen", "broken screen", "screen replacement", "broken display", "cracked display", "display", "glass", "cracked glass", "shattered screen", "lcd"],
+    "battery": ["battery replacement", "new battery", "battery dying", "battery drain", "hold a charge", "hold charge", "doesn't hold a charge", "wont hold a charge"],
+    "charging_port": ["charging port", "won't charge", "loose charger", "charge port", "usb port", "lightning port"],
+    "back_glass": ["back glass", "cracked back", "back cover", "rear glass"],
+    "camera": ["camera", "rear camera", "front camera", "camera lens", "selfie camera"],
+    "water_damage": ["water damage", "got wet", "dropped in water", "liquid damage"]
+  },
+  "devices": {
+    "iphone_se_2020": {
+      "display": "iPhone SE (2020)",
+      "match": ["iphone se 2020", "iphone se 2nd", "iphone se2", "iphone se 2"],
+      "repairs": {
+        "screen": {"low": 89, "high": 109, "turnaround": "same day"},
+        "battery": {"low": 59, "high": 69, "turnaround": "1 hour"},
+        "charging_port": {"low": 79, "high": 99, "turnaround": "same day"}
+      }
+    },
+    "iphone_11": {
+      "display": "iPhone 11",
+      "match": ["iphone 11", "iphone11"],
+      "repairs": {
+        "screen": {"low": 119, "high": 149, "turnaround": "same day"},
+        "battery": {"low": 69, "high": 79, "turnaround": "1 hour"},
+        "charging_port": {"low": 89, "high": 109, "turnaround": "same day"},
+        "back_glass": {"low": 129, "high": 159, "turnaround": "next day"}
+      }
+    },
+    "iphone_12": {
+      "display": "iPhone 12",
+      "match": ["iphone 12", "iphone12"],
+      "repairs": {
+        "screen": {"low": 159, "high": 189, "turnaround": "same day"},
+        "battery": {"low": 79, "high": 89, "turnaround": "1 hour"},
+        "charging_port": {"low": 99, "high": 119, "turnaround": "same day"},
+        "back_glass": {"low": 149, "high": 179, "turnaround": "next day"}
+      }
+    },
+    "iphone_13": {
+      "display": "iPhone 13",
+      "match": ["iphone 13", "iphone13"],
+      "repairs": {
+        "screen": {"low": 179, "high": 209, "turnaround": "same day"},
+        "battery": {"low": 89, "high": 99, "turnaround": "1 hour"},
+        "charging_port": {"low": 109, "high": 129, "turnaround": "same day"},
+        "back_glass": {"low": 169, "high": 199, "turnaround": "next day"}
+      }
+    },
+    "iphone_13_pro": {
+      "display": "iPhone 13 Pro",
+      "match": ["iphone 13 pro", "iphone13 pro", "13 pro"],
+      "repairs": {
+        "screen": {"low": 269, "high": 309, "turnaround": "same day"},
+        "battery": {"low": 99, "high": 109, "turnaround": "1 hour"},
+        "charging_port": {"low": 119, "high": 139, "turnaround": "same day"}
+      }
+    },
+    "iphone_14": {
+      "display": "iPhone 14",
+      "match": ["iphone 14", "iphone14"],
+      "repairs": {
+        "screen": {"low": 219, "high": 249, "turnaround": "same day"},
+        "battery": {"low": 99, "high": 109, "turnaround": "1 hour"},
+        "charging_port": {"low": 119, "high": 139, "turnaround": "same day"}
+      }
+    },
+    "iphone_15": {
+      "display": "iPhone 15",
+      "match": ["iphone 15", "iphone15"],
+      "repairs": {
+        "screen": {"low": 259, "high": 289, "turnaround": "same day"},
+        "battery": {"low": 109, "high": 119, "turnaround": "1 hour"}
+      }
+    },
+    "galaxy_s21": {
+      "display": "Samsung Galaxy S21",
+      "match": ["galaxy s21", "s21", "samsung s21"],
+      "repairs": {
+        "screen": {"low": 199, "high": 239, "turnaround": "next day"},
+        "battery": {"low": 89, "high": 109, "turnaround": "same day"},
+        "charging_port": {"low": 79, "high": 99, "turnaround": "same day"}
+      }
+    },
+    "galaxy_s22": {
+      "display": "Samsung Galaxy S22",
+      "match": ["galaxy s22", "s22", "samsung s22"],
+      "repairs": {
+        "screen": {"low": 229, "high": 269, "turnaround": "next day"},
+        "battery": {"low": 89, "high": 109, "turnaround": "same day"}
+      }
+    },
+    "galaxy_s23": {
+      "display": "Samsung Galaxy S23",
+      "match": ["galaxy s23", "s23", "samsung s23"],
+      "repairs": {
+        "screen": {"low": 259, "high": 299, "turnaround": "next day"},
+        "battery": {"low": 99, "high": 119, "turnaround": "same day"}
+      }
+    },
+    "pixel_7": {
+      "display": "Google Pixel 7",
+      "match": ["pixel 7", "google pixel 7"],
+      "repairs": {
+        "screen": {"low": 189, "high": 229, "turnaround": "next day"},
+        "battery": {"low": 79, "high": 99, "turnaround": "same day"}
+      }
+    },
+    "pixel_8": {
+      "display": "Google Pixel 8",
+      "match": ["pixel 8", "google pixel 8"],
+      "repairs": {
+        "screen": {"low": 219, "high": 259, "turnaround": "next day"},
+        "battery": {"low": 89, "high": 109, "turnaround": "same day"}
+      }
+    }
+  }
+}

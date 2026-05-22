@@ -1,3 +1,4 @@
+from app.storage.sqlite_store import SqliteStore
 from app.storage.store import (
     Conversation,
     InMemoryStore,
@@ -5,6 +6,7 @@ from app.storage.store import (
     Message,
     Store,
     get_store,
+    reset_store_singleton,
 )
 
 __all__ = [
@@ -12,6 +14,8 @@ __all__ = [
     "InMemoryStore",
     "Lead",
     "Message",
+    "SqliteStore",
     "Store",
     "get_store",
+    "reset_store_singleton",
 ]

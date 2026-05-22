@@ -7,6 +7,7 @@ from typing import Any
 
 from anthropic import Anthropic
 
+from app.ai.attachments import InboundAttachment, to_claude_block
 from app.ai.prompts import system_prompt
 from app.ai.tools import TOOL_DEFS, ToolRunner
 from app.config import get_settings
@@ -34,17 +35,40 @@ class Engine:
         self.store = store or get_store()
         self.client = client or Anthropic(api_key=self.settings.anthropic_api_key)
 
-    def handle_message(self, sender_id: str, text: str) -> Reply | None:
+    def handle_message(
+        self,
+        sender_id: str,
+        text: str,
+        attachments: list[InboundAttachment] | None = None,
+    ) -> Reply | None:
         convo = self.store.get_conversation(sender_id)
         if convo.human_takeover:
             log.info("conversation %s in human takeover; skipping AI reply", sender_id)
             return None
 
         intent = classify(text)
-        self.store.append_message(sender_id, "user", text)
+
+        # Persist a text-only record of this turn. Image bytes don't get stored —
+        # we just note that photos came in so the transcript still reads naturally.
+        persisted = text or ""
+        if attachments:
+            tag = f"[{len(attachments)} photo(s) attached]"
+            persisted = f"{persisted}\n{tag}".strip() if persisted else tag
+        self.store.append_message(sender_id, "user", persisted)
 
         runner = ToolRunner(self.store, sender_id)
         history = self.store.get_conversation(sender_id).history_for_model()
+
+        if attachments:
+            image_blocks = [b for b in (to_claude_block(a) for a in attachments) if b]
+            if image_blocks:
+                history[-1] = {
+                    "role": "user",
+                    "content": [
+                        *image_blocks,
+                        {"type": "text", "text": text or "(customer sent a photo)"},
+                    ],
+                }
 
         final_text, tools_used = self._run_with_tools(history, runner)
         self.store.append_message(sender_id, "assistant", final_text)
