@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Supplier {
+  id        Int      @id @default(autoincrement())
+  name      String
+  contact   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  phones    Phone[]
+}
+
+model Phone {
+  id            Int       @id @default(autoincrement())
+  brand         String
+  model         String
+  storage       String?
+  color         String?
+  condition     String
+  imei          String?   @unique
+  serial        String?   @unique
+  purchasePrice Float
+  askingPrice   Float?
+  status        String    @default("for_sale")
+  purchaseDate  DateTime
+  purchasedFrom String?
+  supplierId    Int?
+  supplier      Supplier? @relation(fields: [supplierId], references: [id])
+  notes         String?
+  city          String?
+  imageUrl      String?
+  soldDate      DateTime?
+  salePrice     Float?
+  soldTo        String?
+  repairs       Repair[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([status])
+  @@index([brand, model])
+}
+
+model Repair {
+  id          Int      @id @default(autoincrement())
+  phoneId     Int
+  phone       Phone    @relation(fields: [phoneId], references: [id], onDelete: Cascade)
+  serviceType String
+  description String?
+  partCost    Float?
+  laborCost   Float?
+  performedBy String?
+  performedAt DateTime @default(now())
+}
+
+model Part {
+  id             Int      @id @default(autoincrement())
+  name           String
+  category       String
+  compatibleWith String
+  brand          String?
+  price          Float
+  stock          Int      @default(0)
+  imageUrl       String?
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([category])
+}
