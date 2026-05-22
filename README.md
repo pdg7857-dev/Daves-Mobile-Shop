@@ -13,11 +13,30 @@ Online store + admin back-office for a mobile phone repair and resale business. 
 
 - Next.js 15 (App Router) + TypeScript + React 18
 - Tailwind CSS
-- Prisma + SQLite (swap to Postgres in production by editing `prisma/schema.prisma`)
+- Prisma + Postgres (any Postgres works: Neon, Vercel Postgres, Supabase, Railway, local Docker)
 - HMAC-signed cookie session (no external auth dep)
 - LocalStorage-backed cart with server-side validation at order time
 
-## Quick start
+## Deploy to Vercel (live preview, ~5 min)
+
+1. **Create a free Postgres database.** Easiest is [Neon](https://neon.tech) (free tier, no credit card). Create a project, copy the connection string — it looks like `postgresql://user:pass@host/db?sslmode=require`.
+
+2. **Import this repo in Vercel.** Go to [vercel.com/new](https://vercel.com/new), pick `pdg7857-dev/daves-mobile-shop`, and on the import screen select branch `claude/mobile-repair-website-NDfZW` (or merge to `main` first).
+
+3. **Add environment variables** in the Vercel project settings:
+   - `DATABASE_URL` → your Neon connection string
+   - `ADMIN_PASSWORD` → any password you'll remember
+   - `SESSION_SECRET` → generate with `openssl rand -hex 32`
+   - `NEXT_PUBLIC_BUSINESS_EMAIL` → the email you use for Interac e-Transfer
+   - `NEXT_PUBLIC_BUSINESS_PHONE` → your business phone
+
+4. **Deploy.** Vercel runs `prisma generate && prisma db push` during the build, which creates all the tables in your Postgres DB from `prisma/schema.prisma`. You'll get a `*.vercel.app` URL.
+
+5. **Seed sample data (optional, one-time):** locally point your `.env` `DATABASE_URL` at the same Neon DB and run `npm run db:seed`. Or just add inventory through `/admin`.
+
+6. **Visit your site.** Open `/admin`, sign in with `ADMIN_PASSWORD`, add a phone or two, then browse `/inventory` and `/cart` as a customer.
+
+## Local dev
 
 ```bash
 # 1. Install
@@ -26,12 +45,14 @@ npm install
 # 2. Configure
 cp .env.example .env
 # In .env:
+#   DATABASE_URL=postgresql://...   (Neon free tier, or local docker:
+#                                    docker run --name dms-pg -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:16)
 #   ADMIN_PASSWORD=<pick one>
 #   SESSION_SECRET=$(openssl rand -hex 32)
 #   NEXT_PUBLIC_BUSINESS_EMAIL=your-etransfer-email@example.com
 
-# 3. Initialize DB
-npx prisma migrate dev --name init
+# 3. Initialize DB schema + seed
+npx prisma db push
 npm run db:seed
 
 # 4. Run
@@ -159,8 +180,7 @@ To wire up Stripe Checkout instead:
 
 ## Production notes
 
-- Swap SQLite for Postgres by changing the `datasource db` block in `prisma/schema.prisma` and pointing `DATABASE_URL` at Postgres.
-- Run `npm run prisma:deploy` instead of `migrate dev`.
+- The build command runs `prisma db push` to sync the schema. For stricter production workflows, generate migrations locally with `npx prisma migrate dev --name <change>`, commit the `prisma/migrations/` folder, and swap the build script to use `prisma migrate deploy`.
 - Set `NODE_ENV=production`, regenerate `SESSION_SECRET`, pick a strong `ADMIN_PASSWORD`.
 - For multi-user staff accounts, replace the single-password auth in `src/lib/auth.ts` with a User table + bcrypt/argon2.
 - For email confirmations on new orders, add a hook in `src/app/api/orders/route.ts` after the transaction commits (Resend / Postmark / SES).
