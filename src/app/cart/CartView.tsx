@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
 import { money } from "@/lib/format";
-import { FREE_SHIPPING_AT } from "@/lib/shipping";
 
-export default function CartView() {
+export default function CartView({ freeShippingThreshold }: { freeShippingThreshold: number | null }) {
   const { items, setQty, remove, subtotal, hydrated, count } = useCart();
 
   if (!hydrated) {
@@ -24,7 +23,7 @@ export default function CartView() {
     );
   }
 
-  const remaining = FREE_SHIPPING_AT - subtotal;
+  const remaining = freeShippingThreshold != null ? freeShippingThreshold - subtotal : 0;
 
   return (
     <div className="mt-6 grid lg:grid-cols-3 gap-8">
@@ -42,45 +41,22 @@ export default function CartView() {
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <Link
-                    href={item.type === "phone" ? `/inventory/${item.id}` : `/parts/${item.id}`}
-                    className="font-medium text-gray-900 hover:text-brand-700"
-                  >
-                    {item.name}
-                  </Link>
+                  <Link href={item.type === "phone" ? `/inventory/${item.id}` : `/parts/${item.id}`} className="font-medium text-gray-900 hover:text-brand-700">{item.name}</Link>
                   <div className="text-xs text-gray-500 mt-0.5 capitalize">{item.type}</div>
                 </div>
-                <div className="font-semibold text-brand-700 whitespace-nowrap">
-                  {money(item.price * item.quantity)}
-                </div>
+                <div className="font-semibold text-brand-700 whitespace-nowrap">{money(item.price * item.quantity)}</div>
               </div>
               <div className="mt-3 flex items-center justify-between">
                 {item.type === "part" ? (
                   <div className="flex items-center gap-1 border border-gray-300 rounded-md">
-                    <button
-                      onClick={() => setQty(item.type, item.id, item.quantity - 1)}
-                      className="px-3 py-1 text-gray-700 hover:bg-gray-50"
-                    >
-                      −
-                    </button>
+                    <button onClick={() => setQty(item.type, item.id, item.quantity - 1)} className="px-3 py-1 text-gray-700 hover:bg-gray-50">−</button>
                     <span className="w-10 text-center text-sm">{item.quantity}</span>
-                    <button
-                      onClick={() => setQty(item.type, item.id, item.quantity + 1)}
-                      className="px-3 py-1 text-gray-700 hover:bg-gray-50"
-                      disabled={item.maxQuantity != null && item.quantity >= item.maxQuantity}
-                    >
-                      +
-                    </button>
+                    <button onClick={() => setQty(item.type, item.id, item.quantity + 1)} className="px-3 py-1 text-gray-700 hover:bg-gray-50" disabled={item.maxQuantity != null && item.quantity >= item.maxQuantity}>+</button>
                   </div>
                 ) : (
                   <span className="text-xs text-gray-500">Qty 1 · unique device</span>
                 )}
-                <button
-                  onClick={() => remove(item.type, item.id)}
-                  className="text-xs text-red-700 hover:text-red-900"
-                >
-                  Remove
-                </button>
+                <button onClick={() => remove(item.type, item.id)} className="text-xs text-red-700 hover:text-red-900">Remove</button>
               </div>
             </div>
           </div>
@@ -90,30 +66,15 @@ export default function CartView() {
       <aside className="card p-5 h-fit sticky top-20">
         <h2 className="font-semibold text-gray-900">Summary</h2>
         <dl className="mt-4 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <dt className="text-gray-600">Items ({count})</dt>
-            <dd className="font-medium">{money(subtotal)}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-gray-600">Shipping</dt>
-            <dd className="text-gray-600">Calculated at checkout</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-gray-600">Tax</dt>
-            <dd className="text-gray-600">Based on province</dd>
-          </div>
+          <div className="flex justify-between"><dt className="text-gray-600">Items ({count})</dt><dd className="font-medium">{money(subtotal)}</dd></div>
+          <div className="flex justify-between"><dt className="text-gray-600">Shipping</dt><dd className="text-gray-600">Calculated at checkout</dd></div>
+          <div className="flex justify-between"><dt className="text-gray-600">Tax</dt><dd className="text-gray-600">Based on province</dd></div>
         </dl>
         {remaining > 0 && (
-          <p className="mt-4 text-xs text-brand-700 bg-brand-50 border border-brand-100 rounded-md p-2">
-            Add {money(remaining)} more for free shipping.
-          </p>
+          <p className="mt-4 text-xs text-brand-700 bg-brand-50 border border-brand-100 rounded-md p-2">Add {money(remaining)} more for free shipping.</p>
         )}
-        <Link href="/checkout" className="btn-primary w-full mt-5 justify-center">
-          Continue to checkout
-        </Link>
-        <Link href="/inventory" className="block mt-3 text-center text-sm text-brand-700 hover:text-brand-900">
-          ← Continue shopping
-        </Link>
+        <Link href="/checkout" className="btn-primary w-full mt-5 justify-center">Continue to checkout</Link>
+        <Link href="/inventory" className="block mt-3 text-center text-sm text-brand-700 hover:text-brand-900">← Continue shopping</Link>
       </aside>
     </div>
   );

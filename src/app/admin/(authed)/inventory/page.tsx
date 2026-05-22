@@ -14,10 +14,10 @@ export default async function AdminInventoryPage({
   if (sp.status) where.status = sp.status;
   if (sp.q) {
     where.OR = [
-      { brand: { contains: sp.q } },
-      { model: { contains: sp.q } },
-      { imei: { contains: sp.q } },
-      { serial: { contains: sp.q } }
+      { brand: { contains: sp.q, mode: "insensitive" } },
+      { model: { contains: sp.q, mode: "insensitive" } },
+      { imei: { contains: sp.q, mode: "insensitive" } },
+      { serial: { contains: sp.q, mode: "insensitive" } }
     ];
   }
 
@@ -38,13 +38,7 @@ export default async function AdminInventoryPage({
       </header>
 
       <form className="mt-6 flex flex-wrap gap-2 items-center" method="GET">
-        <input
-          type="search"
-          name="q"
-          placeholder="Search brand, model, IMEI, serial…"
-          defaultValue={sp.q || ""}
-          className="input max-w-xs"
-        />
+        <input type="search" name="q" placeholder="Search brand, model, IMEI, serial…" defaultValue={sp.q || ""} className="input max-w-xs" />
         <select name="status" defaultValue={sp.status || ""} className="input max-w-[180px]">
           <option value="">All statuses</option>
           <option value="for_sale">For sale</option>
@@ -76,11 +70,7 @@ export default async function AdminInventoryPage({
                   <div className="font-medium text-gray-900">{p.brand} {p.model}</div>
                   <div className="text-xs text-gray-500">{[p.storage, p.color, p.condition].filter(Boolean).join(" · ")}</div>
                 </td>
-                <td className="table-cell">
-                  <span className={`text-xs rounded-full px-2 py-0.5 ${STATUS_COLOR[p.status] || "bg-gray-100"}`}>
-                    {STATUS_LABELS[p.status] || p.status}
-                  </span>
-                </td>
+                <td className="table-cell"><span className={`text-xs rounded-full px-2 py-0.5 ${STATUS_COLOR[p.status] || "bg-gray-100"}`}>{STATUS_LABELS[p.status] || p.status}</span></td>
                 <td className="table-cell font-mono text-xs">
                   {p.imei && <div>IMEI: {p.imei}</div>}
                   {p.serial && <div>SN: {p.serial}</div>}
@@ -89,20 +79,10 @@ export default async function AdminInventoryPage({
                 <td className="table-cell text-gray-600">{p.supplier?.name || p.purchasedFrom || "—"}</td>
                 <td className="table-cell text-right">{money(p.purchasePrice)}</td>
                 <td className="table-cell text-right font-medium text-brand-700">{money(p.askingPrice)}</td>
-                <td className="table-cell text-right">
-                  <Link href={`/admin/inventory/${p.id}`} className="text-brand-700 hover:text-brand-900 text-sm">
-                    Edit
-                  </Link>
-                </td>
+                <td className="table-cell text-right"><Link href={`/admin/inventory/${p.id}`} className="text-brand-700 hover:text-brand-900 text-sm">Edit</Link></td>
               </tr>
             ))}
-            {phones.length === 0 && (
-              <tr>
-                <td className="table-cell text-center text-gray-500 py-10" colSpan={8}>
-                  No phones found. <Link href="/admin/inventory/new" className="text-brand-700">Add one →</Link>
-                </td>
-              </tr>
-            )}
+            {phones.length === 0 && (<tr><td className="table-cell text-center text-gray-500 py-10" colSpan={8}>No phones found. <Link href="/admin/inventory/new" className="text-brand-700">Add one →</Link></td></tr>)}
           </tbody>
         </table>
       </div>

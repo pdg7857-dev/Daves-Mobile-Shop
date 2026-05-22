@@ -8,6 +8,8 @@ export const metadata = {
   description: "Refurbished iPhones, Samsungs and Pixels, fully tested and ready to go."
 };
 
+export const dynamic = "force-dynamic";
+
 type SearchParams = { city?: string; brand?: string };
 
 export default async function InventoryPage({
@@ -20,57 +22,27 @@ export default async function InventoryPage({
   if (sp.city) where.city = sp.city;
   if (sp.brand) where.brand = sp.brand;
 
-  const phones = await prisma.phone.findMany({
-    where,
-    orderBy: [{ createdAt: "desc" }]
-  });
-
+  const phones = await prisma.phone.findMany({ where, orderBy: [{ createdAt: "desc" }] });
   const brands = [...new Set(phones.map((p) => p.brand))].sort();
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
       <header className="max-w-2xl">
         <h1 className="text-4xl font-bold text-gray-900">Phones in stock</h1>
-        <p className="mt-3 text-gray-600">
-          Every phone is tested, cleaned and comes with a 30-day warranty.
-          Inventory rotates fast — call ahead to hold one for pickup.
-        </p>
+        <p className="mt-3 text-gray-600">Every phone is tested, cleaned and comes with a 30-day warranty. Inventory rotates fast — call ahead to hold one for pickup.</p>
       </header>
 
       <div className="mt-8 flex flex-wrap gap-2">
-        <Link
-          href="/inventory"
-          className={`text-sm rounded-full px-3 py-1 border ${
-            !sp.city && !sp.brand ? "bg-brand-700 text-white border-brand-700" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-          }`}
-        >
-          All
-        </Link>
+        <Link href="/inventory" className={`text-sm rounded-full px-3 py-1 border ${!sp.city && !sp.brand ? "bg-brand-700 text-white border-brand-700" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}>All</Link>
         {CITIES.map((c) => (
-          <Link
-            key={c.slug}
-            href={`/inventory?city=${c.slug}`}
-            className={`text-sm rounded-full px-3 py-1 border ${
-              sp.city === c.slug ? "bg-brand-700 text-white border-brand-700" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-            }`}
-          >
-            {c.name}
-          </Link>
+          <Link key={c.slug} href={`/inventory?city=${c.slug}`} className={`text-sm rounded-full px-3 py-1 border ${sp.city === c.slug ? "bg-brand-700 text-white border-brand-700" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}>{c.name}</Link>
         ))}
       </div>
 
       {brands.length > 1 && (
         <div className="mt-3 flex flex-wrap gap-2">
           {brands.map((b) => (
-            <Link
-              key={b}
-              href={`/inventory?brand=${encodeURIComponent(b)}${sp.city ? `&city=${sp.city}` : ""}`}
-              className={`text-xs rounded-full px-3 py-1 border ${
-                sp.brand === b ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              {b}
-            </Link>
+            <Link key={b} href={`/inventory?brand=${encodeURIComponent(b)}${sp.city ? `&city=${sp.city}` : ""}`} className={`text-xs rounded-full px-3 py-1 border ${sp.brand === b ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}>{b}</Link>
           ))}
         </div>
       )}
@@ -78,15 +50,11 @@ export default async function InventoryPage({
       {phones.length === 0 ? (
         <div className="mt-12 card p-10 text-center">
           <p className="text-gray-600">No phones match your filter right now.</p>
-          <Link href="/contact" className="mt-4 btn-primary inline-flex">
-            Tell us what you&apos;re looking for
-          </Link>
+          <Link href="/contact" className="mt-4 btn-primary inline-flex">Tell us what you&apos;re looking for</Link>
         </div>
       ) : (
         <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {phones.map((p) => (
-            <PhoneCard key={p.id} phone={p} />
-          ))}
+          {phones.map((p) => (<PhoneCard key={p.id} phone={p} />))}
         </div>
       )}
     </div>

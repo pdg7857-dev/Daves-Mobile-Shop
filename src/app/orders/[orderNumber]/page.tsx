@@ -23,7 +23,6 @@ export default async function OrderStatusPage({
         <h1 className="text-3xl font-bold text-gray-900">Track your order</h1>
         <p className="mt-2 text-sm text-gray-600">Enter the email you used at checkout to view order {orderNumber}.</p>
         <form className="mt-8 card p-6 space-y-4" method="GET">
-          <input type="hidden" name="email" defaultValue="" />
           <div>
             <label className="label">Email</label>
             <input className="input" required type="email" name="email" />
@@ -67,18 +66,13 @@ export default async function OrderStatusPage({
           <h1 className="text-2xl font-bold text-gray-900">Order {order.orderNumber}</h1>
           <p className="text-sm text-gray-600">Placed {date(order.createdAt)}</p>
         </div>
-        <span className={`text-sm rounded-full px-3 py-1 font-medium ${ORDER_STATUS_COLOR[status] || "bg-gray-100"}`}>
-          {ORDER_STATUS_LABELS[status] || order.status}
-        </span>
+        <span className={`text-sm rounded-full px-3 py-1 font-medium ${ORDER_STATUS_COLOR[status] || "bg-gray-100"}`}>{ORDER_STATUS_LABELS[status] || order.status}</span>
       </div>
 
       {order.trackingNumber && (
         <div className="mt-4 card p-4 bg-purple-50 border-purple-200">
           <h3 className="font-semibold text-purple-900">📦 Shipped</h3>
-          <p className="mt-1 text-sm text-purple-900">
-            Carrier: <strong>{order.carrier || "—"}</strong> · Tracking number: <strong className="font-mono">{order.trackingNumber}</strong>
-            {order.shippedAt && <> · Shipped {date(order.shippedAt)}</>}
-          </p>
+          <p className="mt-1 text-sm text-purple-900">Carrier: <strong>{order.carrier || "—"}</strong> · Tracking number: <strong className="font-mono">{order.trackingNumber}</strong>{order.shippedAt && <> · Shipped {date(order.shippedAt)}</>}</p>
         </div>
       )}
 
@@ -106,16 +100,11 @@ export default async function OrderStatusPage({
         <dl className="border-t border-gray-100 p-4 space-y-1 text-sm">
           <div className="flex justify-between"><dt className="text-gray-600">Subtotal</dt><dd>{money(order.subtotal)}</dd></div>
           {order.discountAmount > 0 && (
-            <div className="flex justify-between text-green-700">
-              <dt>Discount{order.discountCode ? ` (${order.discountCode.code})` : ""}</dt>
-              <dd>−{money(order.discountAmount)}</dd>
-            </div>
+            <div className="flex justify-between text-green-700"><dt>Discount{order.discountCode ? ` (${order.discountCode.code})` : ""}</dt><dd>−{money(order.discountAmount)}</dd></div>
           )}
           <div className="flex justify-between"><dt className="text-gray-600">Shipping</dt><dd>{order.shippingCost === 0 ? "Free" : money(order.shippingCost)}</dd></div>
           <div className="flex justify-between"><dt className="text-gray-600">Tax{province ? ` (${province.taxLabel})` : ""}</dt><dd>{money(order.taxAmount)}</dd></div>
-          <div className="flex justify-between text-base font-bold border-t border-gray-100 pt-2 mt-2">
-            <dt>Total</dt><dd className="text-brand-700">{money(order.total)}</dd>
-          </div>
+          <div className="flex justify-between text-base font-bold border-t border-gray-100 pt-2 mt-2"><dt>Total</dt><dd className="text-brand-700">{money(order.total)}</dd></div>
         </dl>
       </div>
 
@@ -140,9 +129,7 @@ export default async function OrderStatusPage({
         </div>
       </div>
 
-      <p className="mt-8 text-xs text-gray-500">
-        Questions? <Link href="/contact" className="underline">Contact us</Link> with order number {order.orderNumber}.
-      </p>
+      <p className="mt-8 text-xs text-gray-500">Questions? <Link href="/contact" className="underline">Contact us</Link> with order number {order.orderNumber}.</p>
     </div>
   );
 }
