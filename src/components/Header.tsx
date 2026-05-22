@@ -1,10 +1,12 @@
 import Link from "next/link";
+import CartIcon from "./CartIcon";
 
 const NAV = [
   { href: "/services", label: "Services" },
   { href: "/inventory", label: "Phones in Stock" },
   { href: "/parts", label: "Parts" },
   { href: "/locations", label: "Locations" },
+  { href: "/orders", label: "Track Order" },
   { href: "/contact", label: "Contact" }
 ];
 
@@ -27,12 +29,15 @@ export default function Header() {
             </Link>
           ))}
         </nav>
-        <a
-          href={`tel:${process.env.NEXT_PUBLIC_BUSINESS_PHONE || ""}`}
-          className="btn-primary hidden md:inline-flex"
-        >
-          Call us
-        </a>
+        <div className="flex items-center gap-1">
+          <CartIcon />
+          <a
+            href={`tel:${process.env.NEXT_PUBLIC_BUSINESS_PHONE || ""}`}
+            className="btn-primary hidden md:inline-flex ml-2"
+          >
+            Call us
+          </a>
+        </div>
       </div>
       <nav className="md:hidden border-t border-gray-100 px-4 py-2 flex gap-4 overflow-x-auto">
         {NAV.map((item) => (

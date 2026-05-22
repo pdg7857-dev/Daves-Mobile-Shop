@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { money } from "@/lib/format";
+import AddToCartButton from "@/components/AddToCartButton";
 
 export default async function PartDetailPage({
   params
@@ -44,7 +45,7 @@ export default async function PartDetailPage({
           <div className="mt-2">
             {inStock ? (
               <span className="text-sm rounded-full bg-green-100 text-green-800 px-3 py-1">
-                {part.stock} in stock
+                {part.stock} in stock · ships Canada-wide
               </span>
             ) : (
               <span className="text-sm rounded-full bg-red-100 text-red-800 px-3 py-1">
@@ -53,9 +54,24 @@ export default async function PartDetailPage({
             )}
           </div>
 
-          <Link href="/contact" className="mt-6 btn-primary inline-flex">
-            {inStock ? "Order this part" : "Get notified when in stock"}
-          </Link>
+          <div className="mt-6">
+            <AddToCartButton
+              item={{
+                type: "part",
+                id: part.id,
+                name: part.name,
+                price: part.price,
+                imageUrl: part.imageUrl,
+                maxQuantity: part.stock
+              }}
+              allowQuantity
+              disabled={!inStock}
+              label="Add to cart"
+            />
+          </div>
+          <p className="mt-3 text-xs text-gray-500">
+            Free shipping on parts orders over $200. Wholesale pricing on bulk orders — <Link href="/contact" className="underline">contact us</Link>.
+          </p>
 
           {part.description && (
             <div className="mt-6 card p-4 bg-gray-50">

@@ -33,10 +33,11 @@ export default async function HomePage() {
                 Shop phones
               </Link>
             </div>
-            <div className="mt-8 flex gap-6 text-sm text-brand-100">
+            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-brand-100">
               <span>✓ 90-day warranty</span>
               <span>✓ OEM parts</span>
               <span>✓ Same-day service</span>
+              <span>✓ Ship anywhere in Canada</span>
             </div>
           </div>
           <div className="hidden lg:flex justify-center">

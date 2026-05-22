@@ -39,6 +39,7 @@ model Phone {
   salePrice     Float?
   soldTo        String?
   repairs       Repair[]
+  orderItems    OrderItem[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -68,8 +69,58 @@ model Part {
   stock          Int      @default(0)
   imageUrl       String?
   description    String?
+  orderItems     OrderItem[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   @@index([category])
+}
+
+model Order {
+  id             Int       @id @default(autoincrement())
+  orderNumber    String    @unique
+  customerName   String
+  customerEmail  String
+  customerPhone  String?
+  addressLine1   String
+  addressLine2   String?
+  city           String
+  province       String
+  postalCode     String
+  country        String    @default("CA")
+  customerNotes  String?
+  status         String    @default("pending_payment")
+  subtotal       Float
+  shippingCost   Float
+  taxAmount      Float
+  total          Float
+  paymentMethod  String?
+  trackingNumber String?
+  carrier        String?
+  adminNotes     String?
+  paidAt         DateTime?
+  shippedAt      DateTime?
+  deliveredAt    DateTime?
+  cancelledAt    DateTime?
+  items          OrderItem[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status])
+  @@index([customerEmail])
+  @@index([orderNumber])
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  itemType  String
+  phoneId   Int?
+  phone     Phone?  @relation(fields: [phoneId], references: [id])
+  partId    Int?
+  part      Part?   @relation(fields: [partId], references: [id])
+  name      String
+  unitPrice Float
+  quantity  Int     @default(1)
 }

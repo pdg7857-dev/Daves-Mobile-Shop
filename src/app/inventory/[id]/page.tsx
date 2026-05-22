@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { money, date } from "@/lib/format";
 import { getCity } from "@/lib/cities";
+import AddToCartButton from "@/components/AddToCartButton";
 
 export default async function PhoneDetailPage({
   params
@@ -20,6 +21,7 @@ export default async function PhoneDetailPage({
   if (!phone || phone.status !== "for_sale") notFound();
 
   const city = phone.city ? getCity(phone.city) : undefined;
+  const price = phone.askingPrice ?? 0;
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10">
@@ -47,16 +49,29 @@ export default async function PhoneDetailPage({
             <span className="rounded-full bg-green-100 text-green-800 px-3 py-1">{phone.condition}</span>
           </div>
 
-          <div className="mt-6 text-4xl font-bold text-brand-700">{money(phone.askingPrice)}</div>
+          <div className="mt-6 text-4xl font-bold text-brand-700">{money(price)}</div>
+          <p className="mt-1 text-sm text-green-700">✓ In stock · Ships within 1 business day</p>
           {city && (
             <p className="mt-2 text-sm text-gray-600">
-              Available at our <Link href={`/locations/${city.slug}`} className="text-brand-700 hover:underline">{city.name}</Link> location.
+              Listed at our <Link href={`/locations/${city.slug}`} className="text-brand-700 hover:underline">{city.name}</Link> location · ships Canada-wide.
             </p>
           )}
 
-          <Link href="/contact" className="mt-6 btn-primary inline-flex">
-            Reserve this phone
-          </Link>
+          <div className="mt-6">
+            <AddToCartButton
+              item={{
+                type: "phone",
+                id: phone.id,
+                name: `${phone.brand} ${phone.model}${phone.storage ? ` ${phone.storage}` : ""}`,
+                price,
+                imageUrl: phone.imageUrl
+              }}
+              label="Add to cart"
+            />
+          </div>
+          <p className="mt-3 text-xs text-gray-500">
+            Free shipping on orders over $200. Prefer pickup? <Link href="/contact" className="underline">Contact us</Link>.
+          </p>
 
           {phone.notes && (
             <div className="mt-6 card p-4 bg-amber-50 border-amber-100">
@@ -67,7 +82,6 @@ export default async function PhoneDetailPage({
         </div>
       </div>
 
-      {/* Repair history — public-friendly view */}
       {phone.repairs.length > 0 && (
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-gray-900">Service history</h2>
@@ -93,8 +107,8 @@ export default async function PhoneDetailPage({
         <ul className="mt-3 text-sm text-gray-700 space-y-1 list-disc list-inside">
           <li>30-day full warranty</li>
           <li>Charging cable + adapter</li>
-          <li>Free SIM swap and data transfer</li>
           <li>Free tempered-glass screen protector</li>
+          <li>Tracked, insured shipping anywhere in Canada</li>
         </ul>
       </div>
     </div>
