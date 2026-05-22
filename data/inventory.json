@@ -1,0 +1,102 @@
+{
+  "_meta": {
+    "currency": "USD",
+    "note": "Used-device stock. Set sold=true (or remove the row) when an item leaves the shelf. `match` is a list of phrases customers might use; the inventory tool normalizes both sides before substring matching."
+  },
+  "items": [
+    {
+      "sku": "i11-001",
+      "model": "iPhone 11",
+      "match": [
+        "iphone 11"
+      ],
+      "color": "Black",
+      "storage_gb": 64,
+      "condition": "Good \u2014 light scratches on frame",
+      "price": 239,
+      "warranty_days": 30,
+      "sold": false
+    },
+    {
+      "sku": "i12-001",
+      "model": "iPhone 12",
+      "match": [
+        "iphone 12"
+      ],
+      "color": "Blue",
+      "storage_gb": 128,
+      "condition": "Excellent",
+      "price": 339,
+      "warranty_days": 30,
+      "sold": false
+    },
+    {
+      "sku": "i13-001",
+      "model": "iPhone 13",
+      "match": [
+        "iphone 13"
+      ],
+      "color": "Pink",
+      "storage_gb": 128,
+      "condition": "Excellent",
+      "price": 429,
+      "warranty_days": 30,
+      "sold": false
+    },
+    {
+      "sku": "i13-002",
+      "model": "iPhone 13",
+      "match": [
+        "iphone 13"
+      ],
+      "color": "Midnight",
+      "storage_gb": 256,
+      "condition": "Good \u2014 small chip on corner",
+      "price": 459,
+      "warranty_days": 30,
+      "sold": false
+    },
+    {
+      "sku": "i13p-001",
+      "model": "iPhone 13 Pro",
+      "match": [
+        "iphone 13 pro"
+      ],
+      "color": "Graphite",
+      "storage_gb": 256,
+      "condition": "Excellent",
+      "price": 599,
+      "warranty_days": 30,
+      "sold": false
+    },
+    {
+      "sku": "s22-001",
+      "model": "Samsung Galaxy S22",
+      "match": [
+        "galaxy s22",
+        "samsung s22",
+        "s22"
+      ],
+      "color": "Phantom Black",
+      "storage_gb": 128,
+      "condition": "Excellent",
+      "price": 349,
+      "warranty_days": 30,
+      "sold": false
+    },
+    {
+      "sku": "p7-001",
+      "model": "Google Pixel 7",
+      "match": [
+        "pixel 7",
+        "google pixel 7"
+      ],
+      "color": "Snow",
+      "storage_gb": 128,
+      "condition": "Good",
+      "price": 269,
+      "warranty_days": 30,
+      "sold": false
+    }
+  ]
+}

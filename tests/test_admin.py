@@ -65,6 +65,35 @@ def test_admin_conversation_view_and_takeover(client):
     assert store.get_conversation("user-B").human_takeover is True
 
 
+def test_leads_csv_export(client):
+    from app.storage import Lead, get_store
+
+    store = get_store()
+    store.add_lead(
+        Lead(
+            sender_id="csv-user",
+            kind="sell_device",
+            summary="Wants to trade in iPhone 12",
+            device="iPhone 12",
+            contact="555-1212",
+        )
+    )
+    r = client.get("/admin/leads.csv", headers=_auth("tester", "secret123"))
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("text/csv")
+    assert "attachment" in r.headers["content-disposition"]
+    body = r.text
+    assert "kind,sender_id" in body  # header row
+    assert "csv-user" in body and "555-1212" in body
+
+
+def test_inventory_view(client):
+    r = client.get("/admin/inventory", headers=_auth("tester", "secret123"))
+    assert r.status_code == 200
+    # The seeded inventory has at least one iPhone 13 row.
+    assert "iPhone 13" in r.text
+
+
 def test_admin_locked_when_password_blank(tmp_path, monkeypatch):
     monkeypatch.setenv("STORE_BACKEND", "memory")
     monkeypatch.setenv("ADMIN_PASSWORD", "")

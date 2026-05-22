@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import asdict
 from typing import Any
 
+from app.inventory import get_inventory
+from app.inventory.inventory import item_to_dict
 from app.quoting import get_quote_book
 from app.storage import Lead, Store
 
@@ -59,6 +61,49 @@ TOOL_DEFS: list[dict[str, Any]] = [
         },
     },
     {
+        "name": "check_inventory",
+        "description": (
+            "Search the used-device inventory for phones we have in stock. "
+            "Call this whenever a customer asks if you have a specific model. "
+            "Returns matching items with price, storage, color, and condition. "
+            "Do not list devices that aren't in the result."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "model": {
+                    "type": "string",
+                    "description": "Model the customer asked about, e.g. 'iPhone 13', 'Galaxy S22'.",
+                },
+                "max_price": {
+                    "type": "number",
+                    "description": "Optional ceiling — only return items at or below this price.",
+                },
+            },
+            "required": ["model"],
+        },
+    },
+    {
+        "name": "reserve_sale",
+        "description": (
+            "Mark an inventory item as sold/reserved for a customer once they've "
+            "committed to buying it AND given a contact phone/email. Use the exact "
+            "`sku` from `check_inventory`. After calling this, tell the customer "
+            "we'll hold it and someone will follow up to arrange payment/pickup."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "sku": {"type": "string"},
+                "contact": {
+                    "type": "string",
+                    "description": "Phone or email the customer gave you.",
+                },
+            },
+            "required": ["sku", "contact"],
+        },
+    },
+    {
         "name": "request_human",
         "description": (
             "Hand the conversation off to a human staff member. Use for upset "
@@ -101,6 +146,28 @@ class ToolRunner:
             )
             self.store.add_lead(lead)
             return {"ok": True, "lead_id": f"{self.sender_id}:{int(lead.ts)}"}
+
+        if name == "check_inventory":
+            items = get_inventory().search(
+                args["model"], max_price=args.get("max_price")
+            )
+            return {"count": len(items), "items": [item_to_dict(i) for i in items]}
+
+        if name == "reserve_sale":
+            inv = get_inventory()
+            item = inv.mark_sold(args["sku"])
+            if item is None:
+                return {"ok": False, "error": f"unknown sku: {args['sku']}"}
+            self.store.add_lead(
+                Lead(
+                    sender_id=self.sender_id,
+                    kind="buy_device",
+                    summary=f"Reserved {item.model} ({item.sku}) for ${item.price:.0f}",
+                    device=item.model,
+                    contact=args.get("contact"),
+                )
+            )
+            return {"ok": True, "sku": item.sku, "price": item.price, "model": item.model}
 
         if name == "request_human":
             self.store.set_human_takeover(self.sender_id, True)

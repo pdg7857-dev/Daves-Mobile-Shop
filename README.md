@@ -9,6 +9,7 @@ for a mobile phone repair / sales / purchasing business.
 - `app/ai/` — Claude-based reply engine with tool use (quote lookup, lead capture, handoff). Vision-capable: customer photos are forwarded to Claude.
 - `app/intents/` — Cheap keyword intent classifier for logging/analytics.
 - `app/quoting/` — JSON-backed price book (`data/price_book.json`) with device + issue alias matching.
+- `app/inventory/` — JSON-backed used-device stock (`data/inventory.json`). The bot can search it and mark items reserved.
 - `app/storage/` — `Store` protocol with two implementations: `InMemoryStore` for tests and `SqliteStore` for prod.
 - `app/admin/` — Tiny HTTP-Basic-auth dashboard at `/admin`: conversation list, transcripts, leads, and a "take over / resume bot" button.
 - `app/config/` — Settings loaded from env vars.
@@ -37,10 +38,13 @@ pytest -q
 ## Admin dashboard
 
 Set `ADMIN_USERNAME` and `ADMIN_PASSWORD` in `.env`, then visit
-`http://localhost:8000/admin` and log in. You'll see conversation list,
-transcripts, captured leads, and a button to silence the bot on a thread
-when a human takes over. If `ADMIN_PASSWORD` is blank the dashboard
-returns 503 — it isn't open to anonymous users by accident.
+`http://localhost:8000/admin` and log in. Pages:
+
+- **Conversations** — list + per-thread transcript, with a take-over/resume button.
+- **Leads** — every `capture_lead` / `reserve_sale` the bot has captured, with a `Export CSV` link (`/admin/leads.csv`).
+- **Inventory** — current `data/inventory.json` contents (available + sold).
+
+If `ADMIN_PASSWORD` is blank the dashboard returns 503 — it isn't open to anonymous users by accident.
 
 ## Wiring to Messenger
 
@@ -55,9 +59,9 @@ returns 503 — it isn't open to anonymous users by accident.
 - **Single entry point.** All inbound messages — Messenger or CLI — go through
   `app.ai.engine.Engine.handle_message`. That's where you add behavior; the
   channels just translate I/O.
-- **Tool use, not prompt soup.** Quoting, lead capture, and handoff are Claude
-  tools (`app/ai/tools.py`), so the model decides when to invoke them rather
-  than us trying to parse free text.
+- **Tool use, not prompt soup.** Quoting, inventory search, sale reservation,
+  lead capture, and handoff are Claude tools (`app/ai/tools.py`), so the model
+  decides when to invoke them rather than us trying to parse free text.
 - **Real price book.** `data/price_book.json` is the source of truth for
   pricing. Add device variants under `devices` and add customer-phrasing
   alternatives under `issue_aliases`. The quote tool reports `confident: false`

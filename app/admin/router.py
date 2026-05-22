@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import csv
 import datetime as dt
 import html
+import io
 import secrets
 from typing import Any
 
 from fastapi import APIRouter, Depends, Form, HTTPException, status
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from app.config import get_settings
+from app.inventory import get_inventory
 from app.storage import get_store
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -62,7 +65,7 @@ def _page(title: str, body: str) -> str:
   button:hover {{ background: #f6f6f6; }}
 </style></head>
 <body>
-<nav><a href="/admin">Conversations</a> <a href="/admin/leads">Leads</a></nav>
+<nav><a href="/admin">Conversations</a> <a href="/admin/leads">Leads</a> <a href="/admin/inventory">Inventory</a></nav>
 <h1>{html.escape(title)}</h1>
 {body}
 </body></html>"""
@@ -153,8 +156,60 @@ def leads(_: str = Depends(_require_admin)) -> HTMLResponse:
         for r in rows_data
     )
     body = (
+        "<p><a href='/admin/leads.csv'>Export CSV</a></p>"
         "<table><thead><tr><th>When</th><th>Kind</th><th>Sender</th><th>Summary</th>"
         "<th>Device</th><th>Contact</th></tr></thead>"
         "<tbody>" + (rows or "<tr><td colspan=6>No leads yet.</td></tr>") + "</tbody></table>"
     )
     return HTMLResponse(_page("Leads", body))
+
+
+@router.get("/leads.csv")
+def leads_csv(_: str = Depends(_require_admin)) -> Response:
+    store: Any = get_store()
+    rows = store.list_leads()
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["ts_iso", "kind", "sender_id", "summary", "device", "issue", "contact"])
+    for r in rows:
+        writer.writerow(
+            [
+                dt.datetime.fromtimestamp(r["ts"]).isoformat(timespec="seconds"),
+                r["kind"],
+                r["sender_id"],
+                r["summary"],
+                r.get("device") or "",
+                r.get("issue") or "",
+                r.get("contact") or "",
+            ]
+        )
+    fname = f"leads-{dt.date.today().isoformat()}.csv"
+    return Response(
+        content=buf.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{fname}"'},
+    )
+
+
+@router.get("/inventory", response_class=HTMLResponse)
+def inventory(_: str = Depends(_require_admin)) -> HTMLResponse:
+    items = get_inventory().list_all(include_sold=True)
+    rows = "".join(
+        f"<tr>"
+        f"<td>{html.escape(it.sku)}</td>"
+        f"<td>{html.escape(it.model)}</td>"
+        f"<td>{it.storage_gb} GB</td>"
+        f"<td>{html.escape(it.color)}</td>"
+        f"<td>{html.escape(it.condition)}</td>"
+        f"<td>${it.price:.0f}</td>"
+        f"<td>{'SOLD' if it.sold else 'available'}</td>"
+        f"</tr>"
+        for it in items
+    )
+    body = (
+        "<p>Source of truth is <code>data/inventory.json</code>. The bot can mark items sold via the <code>reserve_sale</code> tool.</p>"
+        "<table><thead><tr><th>SKU</th><th>Model</th><th>Storage</th><th>Color</th>"
+        "<th>Condition</th><th>Price</th><th>Status</th></tr></thead>"
+        "<tbody>" + (rows or "<tr><td colspan=7>No inventory.</td></tr>") + "</tbody></table>"
+    )
+    return HTMLResponse(_page("Inventory", body))
