@@ -1,3 +1,5 @@
+import type { ShippingConfig } from "./settings";
+
 export type Province = {
   code: string;
   name: string;
@@ -21,28 +23,32 @@ export const PROVINCES: Province[] = [
   { code: "YT", name: "Yukon", taxRate: 0.05, taxLabel: "GST 5%" }
 ];
 
-const REMOTE = new Set(["NT", "NU", "YT"]);
-const FREE_SHIPPING_THRESHOLD = 200;
-const STANDARD_RATE = 15;
-const REMOTE_RATE = 25;
-
 export function getProvince(code: string): Province | undefined {
   return PROVINCES.find((p) => p.code === code);
 }
 
-export function shippingFor(subtotal: number, province: string): number {
-  if (subtotal >= FREE_SHIPPING_THRESHOLD) return 0;
-  return REMOTE.has(province) ? REMOTE_RATE : STANDARD_RATE;
+export function shippingFor(subtotal: number, config: ShippingConfig): number {
+  if (config.freeShippingThreshold != null && subtotal >= config.freeShippingThreshold) {
+    return 0;
+  }
+  return config.flatRate;
 }
 
-export function calculateTotals(subtotal: number, province: string) {
-  const shippingCost = shippingFor(subtotal, province);
+export function calculateTotals(
+  subtotal: number,
+  province: string,
+  config: ShippingConfig,
+  discountAmount = 0
+) {
+  const discounted = Math.max(0, subtotal - discountAmount);
+  const shippingCost = shippingFor(discounted, config);
   const rate = getProvince(province)?.taxRate ?? 0.13;
-  const taxableAmount = subtotal + shippingCost;
+  const taxableAmount = discounted + shippingCost;
   const taxAmount = round2(taxableAmount * rate);
-  const total = round2(subtotal + shippingCost + taxAmount);
+  const total = round2(discounted + shippingCost + taxAmount);
   return {
     subtotal: round2(subtotal),
+    discountAmount: round2(discountAmount),
     shippingCost,
     taxRate: rate,
     taxAmount,
@@ -53,8 +59,6 @@ export function calculateTotals(subtotal: number, province: string) {
 function round2(n: number) {
   return Math.round(n * 100) / 100;
 }
-
-export const FREE_SHIPPING_AT = FREE_SHIPPING_THRESHOLD;
 
 export function isValidPostalCode(value: string): boolean {
   return /^[A-CEGHJ-NPRSTVXY]\d[A-CEGHJ-NPRSTV-Z][ -]?\d[A-CEGHJ-NPRSTV-Z]\d$/i.test(value.trim());

@@ -91,6 +91,9 @@ model Order {
   customerNotes  String?
   status         String    @default("pending_payment")
   subtotal       Float
+  discountCodeId Int?
+  discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  discountAmount Float     @default(0)
   shippingCost   Float
   taxAmount      Float
   total          Float
@@ -123,4 +126,27 @@ model OrderItem {
   name      String
   unitPrice Float
   quantity  Int     @default(1)
+}
+
+model Settings {
+  id                    Int      @id @default(1)
+  shippingFlatRate      Float    @default(15.00)
+  freeShippingThreshold Float?
+  updatedAt             DateTime @updatedAt
+}
+
+model DiscountCode {
+  id              Int       @id @default(autoincrement())
+  code            String    @unique
+  description     String?
+  discountType    String    // "percentage" or "fixed"
+  discountValue   Float
+  minOrderAmount  Float?
+  maxUses         Int?
+  usedCount       Int       @default(0)
+  active          Boolean   @default(true)
+  expiresAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  orders          Order[]
 }
