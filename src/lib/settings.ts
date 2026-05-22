@@ -6,17 +6,18 @@ export type ShippingConfig = {
 };
 
 export async function getSettings() {
-  const existing = await prisma.settings.findUnique({ where: { id: 1 } });
-  if (existing) return existing;
-  return prisma.settings.create({
-    data: { id: 1, shippingFlatRate: 15, freeShippingThreshold: null }
+  // Upsert pattern keeps the single-row contract race-safe on cold start.
+  return prisma.settings.upsert({
+    where: { id: 1 },
+    update: {},
+    create: { id: 1, shippingFlatRate: 15, freeShippingThreshold: null }
   });
 }
 
 export async function getShippingConfig(): Promise<ShippingConfig> {
   const s = await getSettings();
   return {
-    flatRate: s.shippingFlatRate,
+    flatRate: s.flatRate ?? s.shippingFlatRate,
     freeShippingThreshold: s.freeShippingThreshold
   };
 }

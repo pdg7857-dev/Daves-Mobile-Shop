@@ -14,12 +14,16 @@ export default async function AdminPartsPage({
   if (sp.category) where.category = sp.category;
   if (sp.q) {
     where.OR = [
-      { name: { contains: sp.q } },
-      { compatibleWith: { contains: sp.q } }
+      { name: { contains: sp.q, mode: "insensitive" } },
+      { compatibleWith: { contains: sp.q, mode: "insensitive" } }
     ];
   }
-  const parts = await prisma.part.findMany({ where, orderBy: [{ category: "asc" }, { name: "asc" }] });
-  const categories = [...new Set(parts.map((p) => p.category))].sort();
+  // Categories list comes from full catalogue so the dropdown stays stable when a filter is active.
+  const [parts, allCategories] = await Promise.all([
+    prisma.part.findMany({ where, orderBy: [{ category: "asc" }, { name: "asc" }] }),
+    prisma.part.findMany({ select: { category: true }, distinct: ["category"], orderBy: { category: "asc" } })
+  ]);
+  const categories = allCategories.map((c) => c.category);
 
   return (
     <div>
@@ -62,19 +66,11 @@ export default async function AdminPartsPage({
                 <td className="table-cell capitalize">{p.category.replace("-", " ")}</td>
                 <td className="table-cell text-gray-600">{p.compatibleWith}</td>
                 <td className="table-cell text-right">{money(p.price)}</td>
-                <td className="table-cell text-right">
-                  <span className={`text-xs rounded-full px-2 py-0.5 ${p.stock === 0 ? "bg-red-100 text-red-800" : p.stock <= 3 ? "bg-amber-100 text-amber-800" : "bg-green-100 text-green-800"}`}>
-                    {p.stock}
-                  </span>
-                </td>
-                <td className="table-cell text-right">
-                  <Link href={`/admin/parts/${p.id}`} className="text-brand-700 hover:text-brand-900 text-sm">Edit</Link>
-                </td>
+                <td className="table-cell text-right"><span className={`text-xs rounded-full px-2 py-0.5 ${p.stock === 0 ? "bg-red-100 text-red-800" : p.stock <= 3 ? "bg-amber-100 text-amber-800" : "bg-green-100 text-green-800"}`}>{p.stock}</span></td>
+                <td className="table-cell text-right"><Link href={`/admin/parts/${p.id}`} className="text-brand-700 hover:text-brand-900 text-sm">Edit</Link></td>
               </tr>
             ))}
-            {parts.length === 0 && (
-              <tr><td className="table-cell text-center text-gray-500 py-10" colSpan={6}>No parts.</td></tr>
-            )}
+            {parts.length === 0 && (<tr><td className="table-cell text-center text-gray-500 py-10" colSpan={6}>No parts.</td></tr>)}
           </tbody>
         </table>
       </div>

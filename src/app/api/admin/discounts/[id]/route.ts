@@ -19,7 +19,17 @@ export async function PATCH(req: Request, { params }: Ctx) {
     }
     data.discountType = body.discountType;
   }
-  if ("discountValue" in body) data.discountValue = Number(body.discountValue);
+  if ("discountValue" in body) {
+    const v = Number(body.discountValue);
+    if (!Number.isFinite(v) || v <= 0) {
+      return NextResponse.json({ error: "Discount value must be positive" }, { status: 400 });
+    }
+    const type = (body.discountType as string | undefined) ?? (data.discountType as string | undefined);
+    if (type === "percentage" && v > 100) {
+      return NextResponse.json({ error: "Percentage cannot exceed 100" }, { status: 400 });
+    }
+    data.discountValue = v;
+  }
   if ("minOrderAmount" in body) {
     data.minOrderAmount = body.minOrderAmount == null || body.minOrderAmount === "" ? null : Number(body.minOrderAmount);
   }
