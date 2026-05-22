@@ -17,7 +17,7 @@ export async function getSettings() {
 export async function getShippingConfig(): Promise<ShippingConfig> {
   const s = await getSettings();
   return {
-    flatRate: s.flatRate ?? s.shippingFlatRate,
+    flatRate: s.shippingFlatRate,
     freeShippingThreshold: s.freeShippingThreshold
   };
 }
