@@ -18,7 +18,6 @@ export default async function OrderStatusPage({
   const sp = await searchParams;
 
   if (!sp.email) {
-    // Force lookup via the form to avoid bare order URLs being readable
     return (
       <div className="mx-auto max-w-xl px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-bold text-gray-900">Track your order</h1>
@@ -37,7 +36,7 @@ export default async function OrderStatusPage({
 
   const order = await prisma.order.findUnique({
     where: { orderNumber: decodeURIComponent(orderNumber).toUpperCase() },
-    include: { items: true }
+    include: { items: true, discountCode: true }
   });
 
   if (!order || order.customerEmail !== sp.email.trim().toLowerCase()) {
@@ -106,6 +105,12 @@ export default async function OrderStatusPage({
         </table>
         <dl className="border-t border-gray-100 p-4 space-y-1 text-sm">
           <div className="flex justify-between"><dt className="text-gray-600">Subtotal</dt><dd>{money(order.subtotal)}</dd></div>
+          {order.discountAmount > 0 && (
+            <div className="flex justify-between text-green-700">
+              <dt>Discount{order.discountCode ? ` (${order.discountCode.code})` : ""}</dt>
+              <dd>−{money(order.discountAmount)}</dd>
+            </div>
+          )}
           <div className="flex justify-between"><dt className="text-gray-600">Shipping</dt><dd>{order.shippingCost === 0 ? "Free" : money(order.shippingCost)}</dd></div>
           <div className="flex justify-between"><dt className="text-gray-600">Tax{province ? ` (${province.taxLabel})` : ""}</dt><dd>{money(order.taxAmount)}</dd></div>
           <div className="flex justify-between text-base font-bold border-t border-gray-100 pt-2 mt-2">

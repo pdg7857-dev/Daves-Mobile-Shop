@@ -28,17 +28,14 @@ export default async function AdminPartsPage({
           <h1 className="text-2xl font-bold text-gray-900">Parts</h1>
           <p className="text-sm text-gray-600">Stock and pricing for resale parts.</p>
         </div>
-        <Link href="/admin/parts/new" className="btn-primary">+ Add part</Link>
+        <div className="flex gap-2">
+          <Link href="/admin/parts/import" className="btn-secondary">Bulk import</Link>
+          <Link href="/admin/parts/new" className="btn-primary">+ Add part</Link>
+        </div>
       </header>
 
       <form className="mt-6 flex flex-wrap gap-2 items-center" method="GET">
-        <input
-          type="search"
-          name="q"
-          placeholder="Search…"
-          defaultValue={sp.q || ""}
-          className="input max-w-xs"
-        />
+        <input type="search" name="q" placeholder="Search…" defaultValue={sp.q || ""} className="input max-w-xs" />
         <select name="category" defaultValue={sp.category || ""} className="input max-w-[200px]">
           <option value="">All categories</option>
           {categories.map((c) => <option key={c} value={c}>{c}</option>)}

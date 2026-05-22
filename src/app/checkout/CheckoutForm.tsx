@@ -6,8 +6,16 @@ import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
 import { money } from "@/lib/format";
 import { PROVINCES, calculateTotals, isValidPostalCode } from "@/lib/shipping";
+import type { ShippingConfig } from "@/lib/settings";
 
-export default function CheckoutForm() {
+type DiscountState = {
+  code: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  discountAmount: number;
+};
+
+export default function CheckoutForm({ shippingConfig }: { shippingConfig: ShippingConfig }) {
   const router = useRouter();
   const { items, subtotal, clear, hydrated } = useCart();
   const [form, setForm] = useState({
@@ -21,10 +29,17 @@ export default function CheckoutForm() {
     postalCode: "",
     customerNotes: ""
   });
+  const [promoInput, setPromoInput] = useState("");
+  const [discount, setDiscount] = useState<DiscountState | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoBusy, setPromoBusy] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const totals = useMemo(() => calculateTotals(subtotal, form.province), [subtotal, form.province]);
+  const totals = useMemo(
+    () => calculateTotals(subtotal, form.province, shippingConfig, discount?.discountAmount ?? 0),
+    [subtotal, form.province, shippingConfig, discount]
+  );
 
   if (!hydrated) return <div className="mt-6 text-gray-500">Loading…</div>;
 
@@ -41,6 +56,36 @@ export default function CheckoutForm() {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
+  async function applyPromo() {
+    setPromoError(null);
+    if (!promoInput.trim()) return;
+    setPromoBusy(true);
+    const res = await fetch("/api/discounts/validate", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code: promoInput.trim(), subtotal })
+    });
+    setPromoBusy(false);
+    const data = await res.json();
+    if (!data.ok) {
+      setPromoError(data.reason || "Invalid code");
+      setDiscount(null);
+      return;
+    }
+    setDiscount({
+      code: data.code,
+      discountType: data.discountType,
+      discountValue: data.discountValue,
+      discountAmount: data.discountAmount
+    });
+  }
+
+  function removePromo() {
+    setDiscount(null);
+    setPromoInput("");
+    setPromoError(null);
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -54,6 +99,7 @@ export default function CheckoutForm() {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         ...form,
+        discountCode: discount?.code,
         items: items.map((i) => ({ type: i.type, id: i.id, quantity: i.quantity }))
       })
     });
@@ -150,8 +196,38 @@ export default function CheckoutForm() {
             </li>
           ))}
         </ul>
+
+        <div className="mt-4 border-t border-gray-100 pt-4">
+          {!discount ? (
+            <div>
+              <label className="label">Promo code</label>
+              <div className="flex gap-2">
+                <input className="input font-mono uppercase" value={promoInput} onChange={(e) => setPromoInput(e.target.value.toUpperCase())} placeholder="WELCOME10" />
+                <button type="button" onClick={applyPromo} disabled={promoBusy} className="btn-secondary">{promoBusy ? "…" : "Apply"}</button>
+              </div>
+              {promoError && <p className="mt-1 text-xs text-red-700">{promoError}</p>}
+            </div>
+          ) : (
+            <div className="flex items-center justify-between rounded-md bg-green-50 border border-green-200 px-3 py-2">
+              <div className="text-sm">
+                <div className="font-mono font-semibold text-green-900">{discount.code}</div>
+                <div className="text-xs text-green-800">
+                  {discount.discountType === "percentage" ? `${discount.discountValue}% off` : `${money(discount.discountValue)} off`} — saved {money(discount.discountAmount)}
+                </div>
+              </div>
+              <button type="button" onClick={removePromo} className="text-xs text-red-700 hover:text-red-900">Remove</button>
+            </div>
+          )}
+        </div>
+
         <dl className="mt-4 space-y-2 text-sm border-t border-gray-100 pt-4">
           <div className="flex justify-between"><dt className="text-gray-600">Subtotal</dt><dd>{money(totals.subtotal)}</dd></div>
+          {totals.discountAmount > 0 && (
+            <div className="flex justify-between text-green-700">
+              <dt>Discount</dt>
+              <dd>−{money(totals.discountAmount)}</dd>
+            </div>
+          )}
           <div className="flex justify-between">
             <dt className="text-gray-600">Shipping</dt>
             <dd>{totals.shippingCost === 0 ? <span className="text-green-700 font-medium">Free</span> : money(totals.shippingCost)}</dd>
