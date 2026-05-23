@@ -12,9 +12,15 @@ html, body {
   color: var(--foreground);
 }
 
+/* Prevent iOS Safari from over-shrinking text */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors;
+    /* min-h-[40px] = comfortable tap target. active:scale gives tactile feedback on touch. */
+    @apply inline-flex items-center justify-center rounded-md px-4 py-2.5 text-sm font-medium transition-colors min-h-[40px] active:scale-95;
   }
   .btn-primary {
     @apply btn bg-brand-600 text-white hover:bg-brand-700;
@@ -28,13 +34,19 @@ html, body {
   .card {
     @apply rounded-xl border border-gray-200 bg-white shadow-sm;
   }
+  /* text-base (16px) on mobile prevents iOS Safari from auto-zooming when the field is focused */
   .input {
-    @apply w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
+    @apply w-full rounded-md border border-gray-300 px-3 py-2.5 text-base sm:text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
   }
   .label {
     @apply block text-sm font-medium text-gray-700 mb-1;
   }
   .table-cell {
     @apply px-3 py-2 text-sm;
+  }
+  /* Wrap any wide table in <div className="table-wrap"> — horizontal swipe instead of clip on mobile */
+  .table-wrap {
+    @apply overflow-x-auto;
+    -webkit-overflow-scrolling: touch;
   }
 }

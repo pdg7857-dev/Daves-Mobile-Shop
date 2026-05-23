@@ -20,15 +20,36 @@ export default function Header() {
           <span className="font-bold text-lg text-brand-700">Dave&apos;s Mobile Shop</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6">
-          {NAV.map((item) => (<Link key={item.href} href={item.href} className="text-sm font-medium text-gray-700 hover:text-brand-700">{item.label}</Link>))}
+          {NAV.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-sm font-medium text-gray-700 hover:text-brand-700"
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
         <div className="flex items-center gap-1">
           <CartIcon />
-          <a href={`tel:${process.env.NEXT_PUBLIC_BUSINESS_PHONE || ""}`} className="btn-primary hidden md:inline-flex ml-2">Call us</a>
+          <a
+            href={`tel:${process.env.NEXT_PUBLIC_BUSINESS_PHONE || ""}`}
+            className="btn-primary hidden md:inline-flex ml-2"
+          >
+            Call us
+          </a>
         </div>
       </div>
-      <nav className="md:hidden border-t border-gray-100 px-4 py-2 flex gap-4 overflow-x-auto">
-        {NAV.map((item) => (<Link key={item.href} href={item.href} className="text-sm font-medium text-gray-700 whitespace-nowrap">{item.label}</Link>))}
+      <nav className="md:hidden border-t border-gray-100 px-2 flex gap-1 overflow-x-auto">
+        {NAV.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="text-sm font-medium text-gray-700 whitespace-nowrap py-3 px-2 hover:text-brand-700 active:bg-gray-100 rounded-md"
+          >
+            {item.label}
+          </Link>
+        ))}
       </nav>
     </header>
   );
