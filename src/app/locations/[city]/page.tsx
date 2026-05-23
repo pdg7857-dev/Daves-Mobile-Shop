@@ -37,17 +37,17 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-3 gap-6">
-        <div className="card p-6"><h3 className="font-semibold text-gray-900">Hours</h3><p className="mt-2 text-sm text-gray-700">{city.hours}</p></div>
-        <div className="card p-6"><h3 className="font-semibold text-gray-900">Turnaround</h3><p className="mt-2 text-sm text-gray-700">{city.turnaround}</p></div>
-        <div className="card p-6"><h3 className="font-semibold text-gray-900">Coverage area</h3><p className="mt-2 text-sm text-gray-700">{city.neighborhoods.join(" · ")}</p></div>
+        <div className="card p-6"><h3 className="font-semibold text-white">Hours</h3><p className="mt-2 text-sm text-gray-300">{city.hours}</p></div>
+        <div className="card p-6"><h3 className="font-semibold text-white">Turnaround</h3><p className="mt-2 text-sm text-gray-300">{city.turnaround}</p></div>
+        <div className="card p-6"><h3 className="font-semibold text-white">Coverage area</h3><p className="mt-2 text-sm text-gray-300">{city.neighborhoods.join(" · ")}</p></div>
       </section>
 
       {phones.length > 0 && (
-        <section className="bg-white border-y border-gray-200">
+        <section className="bg-gray-900/40 border-y border-gray-800">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex items-end justify-between">
-              <h2 className="text-3xl font-bold text-gray-900">In stock at {city.name}</h2>
-              <Link href={`/inventory?city=${city.slug}`} className="text-sm font-medium text-brand-700 hover:text-brand-900">See all →</Link>
+              <h2 className="text-3xl font-bold text-white">In stock at {city.name}</h2>
+              <Link href={`/inventory?city=${city.slug}`} className="text-sm font-medium text-brand-300 hover:text-brand-200">See all →</Link>
             </div>
             <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">{phones.map((p) => (<PhoneCard key={p.id} phone={p} />))}</div>
           </div>
@@ -55,16 +55,16 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       )}
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-3xl font-bold text-gray-900">Services we offer here</h2>
-        <p className="mt-2 text-gray-600">All standard repairs are available at every location.</p>
+        <h2 className="text-3xl font-bold text-white">Services we offer here</h2>
+        <p className="mt-2 text-gray-400">All standard repairs are available at every location.</p>
         <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {SERVICES.map((s) => (
             <div key={s.slug} className="card p-5">
               <div className="text-2xl">{s.icon}</div>
-              <h3 className="mt-2 font-semibold text-gray-900">{s.name}</h3>
-              <p className="mt-1 text-sm text-gray-600">{s.short}</p>
+              <h3 className="mt-2 font-semibold text-white">{s.name}</h3>
+              <p className="mt-1 text-sm text-gray-400">{s.short}</p>
               <div className="mt-3 flex items-center justify-between text-sm">
-                <span className="font-semibold text-brand-700">From {s.startingPrice}</span>
+                <span className="font-semibold text-brand-300">From {s.startingPrice}</span>
                 <span className="text-gray-500">{s.turnaround}</span>
               </div>
             </div>
@@ -73,23 +73,23 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-3xl font-bold text-gray-900">FAQ — {city.name}</h2>
+        <h2 className="text-3xl font-bold text-white">FAQ — {city.name}</h2>
         <div className="mt-6 max-w-3xl space-y-3">
           {city.faqs.map((f, i) => (
             <details key={i} className="card p-4 group">
               <summary className="cursor-pointer list-none flex items-center justify-between gap-3">
-                <span className="font-medium text-gray-900">{f.q}</span>
-                <span className="text-brand-700 group-open:rotate-180 transition-transform" aria-hidden>▾</span>
+                <span className="font-medium text-white">{f.q}</span>
+                <span className="text-brand-300 group-open:rotate-180 transition-transform" aria-hidden>▾</span>
               </summary>
-              <p className="mt-3 text-sm text-gray-700">{f.a}</p>
+              <p className="mt-3 text-sm text-gray-300">{f.a}</p>
             </details>
           ))}
         </div>
       </section>
 
-      <section className="bg-gray-900 text-white">
+      <section className="bg-gradient-to-r from-brand-900 to-gray-900 border-y border-gray-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 text-center">
-          <h2 className="text-2xl font-bold">Ready to fix your phone in {city.name}?</h2>
+          <h2 className="text-2xl font-bold text-white">Ready to fix your phone in {city.name}?</h2>
           <p className="mt-2 text-gray-300">Walk in or text us a photo for a quote.</p>
           <div className="mt-6 flex justify-center gap-3">
             <a href={`tel:${process.env.NEXT_PUBLIC_BUSINESS_PHONE || ""}`} className="btn-primary">Call now</a>
