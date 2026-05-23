@@ -3,13 +3,9 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { money, date } from "@/lib/format";
 import { getCity } from "@/lib/cities";
-import AddToCartButton from "@/components/AddToCartButton";
+import PhonePurchaseFlow from "@/components/PhonePurchaseFlow";
 
-export default async function PhoneDetailPage({
-  params
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function PhoneDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const phoneId = Number(id);
   if (!Number.isFinite(phoneId)) notFound();
@@ -52,7 +48,7 @@ export default async function PhoneDetailPage({
           )}
 
           <div className="mt-6">
-            <AddToCartButton item={{ type: "phone", id: phone.id, name: `${phone.brand} ${phone.model}${phone.storage ? ` ${phone.storage}` : ""}`, price, imageUrl: phone.imageUrl }} label="Add to cart" />
+            <PhonePurchaseFlow item={{ type: "phone", id: phone.id, name: `${phone.brand} ${phone.model}${phone.storage ? ` ${phone.storage}` : ""}`, price, imageUrl: phone.imageUrl }} />
           </div>
           <p className="mt-3 text-xs text-gray-500">Free shipping on orders over $200. Prefer pickup? <Link href="/contact" className="underline">Contact us</Link>.</p>
 

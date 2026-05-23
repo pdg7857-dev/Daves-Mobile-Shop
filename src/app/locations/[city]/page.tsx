@@ -13,10 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ city: str
   const { city } = await params;
   const c = getCity(city);
   if (!c) return { title: "Location not found" };
-  return {
-    title: `${c.name} — Phone Repair & Refurbished Phones | Dave's Mobile Shop`,
-    description: `${c.tagline} ${c.intro}`
-  };
+  return { title: `${c.name} — Phone Repair & Refurbished Phones | Dave's Mobile Shop`, description: `${c.tagline} ${c.intro}` };
 }
 
 export default async function CityPage({ params }: { params: Promise<{ city: string }> }) {
@@ -24,46 +21,27 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
   const city = getCity(slug);
   if (!city) notFound();
 
-  const phones = await prisma.phone.findMany({
-    where: { status: "for_sale", city: slug },
-    orderBy: { createdAt: "desc" },
-    take: 8
-  });
+  const phones = await prisma.phone.findMany({ where: { status: "for_sale", city: slug }, orderBy: { createdAt: "desc" }, take: 8 });
 
   return (
     <div>
       <section className="bg-gradient-to-br from-brand-700 to-brand-900 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-          <span className="text-sm uppercase tracking-wide text-brand-200">
-            {city.province}
-          </span>
+          <span className="text-sm uppercase tracking-wide text-brand-200">{city.province}</span>
           <h1 className="mt-2 text-4xl md:text-5xl font-bold">{city.name}</h1>
           <p className="mt-4 text-lg text-brand-100 max-w-3xl">{city.tagline}</p>
           <p className="mt-2 text-brand-100 max-w-3xl">{city.intro}</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/contact" className="btn bg-white text-brand-700 hover:bg-brand-50">
-              Get a quote
-            </Link>
-            <Link href={`/inventory?city=${city.slug}`} className="btn border border-white/30 text-white hover:bg-white/10">
-              See phones at this location
-            </Link>
+            <Link href="/contact" className="btn bg-white text-brand-700 hover:bg-brand-50">Get a quote</Link>
+            <Link href={`/inventory?city=${city.slug}`} className="btn border border-white/30 text-white hover:bg-white/10">See phones at this location</Link>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-3 gap-6">
-        <div className="card p-6">
-          <h3 className="font-semibold text-gray-900">Hours</h3>
-          <p className="mt-2 text-sm text-gray-700">{city.hours}</p>
-        </div>
-        <div className="card p-6">
-          <h3 className="font-semibold text-gray-900">Turnaround</h3>
-          <p className="mt-2 text-sm text-gray-700">{city.turnaround}</p>
-        </div>
-        <div className="card p-6">
-          <h3 className="font-semibold text-gray-900">Coverage area</h3>
-          <p className="mt-2 text-sm text-gray-700">{city.neighborhoods.join(" · ")}</p>
-        </div>
+        <div className="card p-6"><h3 className="font-semibold text-gray-900">Hours</h3><p className="mt-2 text-sm text-gray-700">{city.hours}</p></div>
+        <div className="card p-6"><h3 className="font-semibold text-gray-900">Turnaround</h3><p className="mt-2 text-sm text-gray-700">{city.turnaround}</p></div>
+        <div className="card p-6"><h3 className="font-semibold text-gray-900">Coverage area</h3><p className="mt-2 text-sm text-gray-700">{city.neighborhoods.join(" · ")}</p></div>
       </section>
 
       {phones.length > 0 && (
@@ -71,15 +49,9 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex items-end justify-between">
               <h2 className="text-3xl font-bold text-gray-900">In stock at {city.name}</h2>
-              <Link href={`/inventory?city=${city.slug}`} className="text-sm font-medium text-brand-700 hover:text-brand-900">
-                See all →
-              </Link>
+              <Link href={`/inventory?city=${city.slug}`} className="text-sm font-medium text-brand-700 hover:text-brand-900">See all →</Link>
             </div>
-            <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {phones.map((p) => (
-                <PhoneCard key={p.id} phone={p} />
-              ))}
-            </div>
+            <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">{phones.map((p) => (<PhoneCard key={p.id} phone={p} />))}</div>
           </div>
         </section>
       )}
@@ -102,20 +74,34 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
         </div>
       </section>
 
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+        <h2 className="text-3xl font-bold text-gray-900">FAQ — {city.name}</h2>
+        <div className="mt-6 max-w-3xl space-y-3">
+          {city.faqs.map((f, i) => (
+            <details key={i} className="card p-4 group">
+              <summary className="cursor-pointer list-none flex items-center justify-between gap-3">
+                <span className="font-medium text-gray-900">{f.q}</span>
+                <span className="text-brand-700 group-open:rotate-180 transition-transform" aria-hidden>▾</span>
+              </summary>
+              <p className="mt-3 text-sm text-gray-700">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
       <section className="bg-gray-900 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 text-center">
           <h2 className="text-2xl font-bold">Ready to fix your phone in {city.name}?</h2>
           <p className="mt-2 text-gray-300">Walk in or text us a photo for a quote.</p>
           <div className="mt-6 flex justify-center gap-3">
-            <a href={`tel:${process.env.NEXT_PUBLIC_BUSINESS_PHONE || ""}`} className="btn-primary">
-              Call now
-            </a>
-            <Link href="/contact" className="btn-secondary">
-              Get a quote
-            </Link>
+            <a href={`tel:${process.env.NEXT_PUBLIC_BUSINESS_PHONE || ""}`} className="btn-primary">Call now</a>
+            <Link href="/contact" className="btn-secondary">Get a quote</Link>
           </div>
         </div>
       </section>
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "LocalBusiness", name: `Dave's Mobile Shop — ${city.name}`, description: city.intro, address: { "@type": "PostalAddress", streetAddress: city.streetAddress ?? undefined, addressLocality: city.name.replace(/\s*\(.*\)\s*/, ""), addressRegion: city.isoRegion, addressCountry: "CA" }, telephone: process.env.NEXT_PUBLIC_BUSINESS_PHONE || undefined, email: process.env.NEXT_PUBLIC_BUSINESS_EMAIL || undefined, areaServed: city.neighborhoods.map((n) => ({ "@type": "Place", name: n })), openingHours: city.hours, priceRange: "$$" }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: city.faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }) }} />
     </div>
   );
 }
