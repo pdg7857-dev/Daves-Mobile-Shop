@@ -7,30 +7,19 @@ import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
 type Ctx = { params: Promise<{ id: string }> };
 
 async function runRestore(tx: Prisma.TransactionClient, orderId: number) {
-  const order = await tx.order.findUnique({
-    where: { id: orderId },
-    include: { items: true }
-  });
+  const order = await tx.order.findUnique({ where: { id: orderId }, include: { items: true } });
   if (!order) return;
   for (const item of order.items) {
     if (item.itemType === "phone" && item.phoneId) {
-      await tx.phone.update({
-        where: { id: item.phoneId },
-        data: { status: "for_sale", soldDate: null, salePrice: null, soldTo: null }
-      });
+      await tx.phone.update({ where: { id: item.phoneId }, data: { status: "for_sale", soldDate: null, salePrice: null, soldTo: null } });
     } else if (item.itemType === "part" && item.partId) {
-      await tx.part.update({
-        where: { id: item.partId },
-        data: { stock: { increment: item.quantity } }
-      });
+      await tx.part.update({ where: { id: item.partId }, data: { stock: { increment: item.quantity } } });
     }
   }
   if (order.discountCodeId) {
-    await tx.discountCode.update({
-      where: { id: order.discountCodeId },
-      data: { usedCount: { decrement: 1 } }
-    });
+    await tx.discountCode.update({ where: { id: order.discountCodeId }, data: { usedCount: { decrement: 1 } } });
   }
+  await tx.daveCarePlan.updateMany({ where: { orderId, status: "active" }, data: { status: "cancelled" } });
 }
 
 export async function PATCH(req: Request, { params }: Ctx) {
@@ -40,16 +29,11 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const orderId = Number(id);
   const body = await req.json();
   const newStatus = body.status as OrderStatus | undefined;
-  if (newStatus && !ORDER_STATUSES.includes(newStatus)) {
-    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
-  }
+  if (newStatus && !ORDER_STATUSES.includes(newStatus)) return NextResponse.json({ error: "Invalid status" }, { status: 400 });
 
   try {
     const updated = await prisma.$transaction(async (tx) => {
-      const existing = await tx.order.findUnique({
-        where: { id: orderId },
-        include: { items: true }
-      });
+      const existing = await tx.order.findUnique({ where: { id: orderId }, include: { items: true } });
       if (!existing) throw new Error("Order not found");
       const prevStatus = existing.status as OrderStatus;
 
@@ -57,22 +41,13 @@ export async function PATCH(req: Request, { params }: Ctx) {
       const now = new Date();
 
       if (newStatus && newStatus !== prevStatus) {
-        // Compare-and-swap: only run side effects if no other admin moved the order
-        // between our read and write. count !== 1 means a concurrent update raced us.
-        const swap = await tx.order.updateMany({
-          where: { id: orderId, status: prevStatus },
-          data: { status: newStatus }
-        });
-        if (swap.count !== 1) {
-          throw new Error("Order was just updated by someone else. Refresh and try again.");
-        }
+        const swap = await tx.order.updateMany({ where: { id: orderId, status: prevStatus }, data: { status: newStatus } });
+        if (swap.count !== 1) throw new Error("Order was just updated by someone else. Refresh and try again.");
 
         if (newStatus === "paid" && !existing.paidAt) data.paidAt = now;
         if (newStatus === "shipped" && !existing.shippedAt) data.shippedAt = now;
         if (newStatus === "delivered" && !existing.deliveredAt) data.deliveredAt = now;
-        if ((newStatus === "cancelled" || newStatus === "refunded") && !existing.cancelledAt) {
-          data.cancelledAt = now;
-        }
+        if ((newStatus === "cancelled" || newStatus === "refunded") && !existing.cancelledAt) data.cancelledAt = now;
 
         if (newStatus === "shipped" || newStatus === "delivered") {
           const soldAt = existing.shippedAt ?? now;
@@ -80,10 +55,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
             if (item.itemType === "phone" && item.phoneId) {
               const exists = await tx.phone.findUnique({ where: { id: item.phoneId }, select: { id: true } });
               if (exists) {
-                await tx.phone.update({
-                  where: { id: item.phoneId },
-                  data: { status: "sold", soldDate: soldAt, salePrice: item.unitPrice, soldTo: existing.customerName }
-                });
+                await tx.phone.update({ where: { id: item.phoneId }, data: { status: "sold", soldDate: soldAt, salePrice: item.unitPrice, soldTo: existing.customerName } });
               }
             }
           }
@@ -94,28 +66,16 @@ export async function PATCH(req: Request, { params }: Ctx) {
             for (const item of existing.items) {
               if (item.itemType === "phone" && item.phoneId) {
                 const exists = await tx.phone.findUnique({ where: { id: item.phoneId }, select: { id: true } });
-                if (exists) {
-                  await tx.phone.update({
-                    where: { id: item.phoneId },
-                    data: { status: "for_sale", soldDate: null, salePrice: null, soldTo: null }
-                  });
-                }
+                if (exists) await tx.phone.update({ where: { id: item.phoneId }, data: { status: "for_sale", soldDate: null, salePrice: null, soldTo: null } });
               } else if (item.itemType === "part" && item.partId) {
                 const exists = await tx.part.findUnique({ where: { id: item.partId }, select: { id: true } });
-                if (exists) {
-                  await tx.part.update({
-                    where: { id: item.partId },
-                    data: { stock: { increment: item.quantity } }
-                  });
-                }
+                if (exists) await tx.part.update({ where: { id: item.partId }, data: { stock: { increment: item.quantity } } });
               }
             }
             if (existing.discountCodeId) {
-              await tx.discountCode.update({
-                where: { id: existing.discountCodeId },
-                data: { usedCount: { decrement: 1 } }
-              });
+              await tx.discountCode.update({ where: { id: existing.discountCodeId }, data: { usedCount: { decrement: 1 } } });
             }
+            await tx.daveCarePlan.updateMany({ where: { orderId, status: "active" }, data: { status: "cancelled" } });
           }
         }
       }
@@ -126,9 +86,6 @@ export async function PATCH(req: Request, { params }: Ctx) {
       if ("paymentMethod" in body) data.paymentMethod = body.paymentMethod || null;
 
       if (Object.keys(data).length === 0) {
-        // No timestamps/extra fields to write. If we just did a status swap via
-        // updateMany, the row's status is already current — re-read to return it.
-        // Otherwise (nothing changed at all), just return what we had.
         if (newStatus && newStatus !== prevStatus) {
           const fresh = await tx.order.findUnique({ where: { id: orderId }, include: { items: true } });
           return fresh ?? existing;
@@ -153,9 +110,7 @@ export async function DELETE(_req: Request, { params }: Ctx) {
     await prisma.$transaction(async (tx) => {
       const order = await tx.order.findUnique({ where: { id: orderId }, select: { status: true } });
       if (!order) throw new Error("Order not found");
-      if (order.status !== "shipped" && order.status !== "delivered") {
-        await runRestore(tx, orderId);
-      }
+      if (order.status !== "shipped" && order.status !== "delivered") await runRestore(tx, orderId);
       await tx.order.delete({ where: { id: orderId } });
     });
     return NextResponse.json({ ok: true });
