@@ -48,6 +48,7 @@ export default async function AdminPartsPage({
       </form>
 
       <div className="mt-6 card overflow-hidden">
+        <div className="table-wrap">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-600">
             <tr>
@@ -63,9 +64,9 @@ export default async function AdminPartsPage({
             {parts.map((p) => (
               <tr key={p.id} className="hover:bg-gray-50">
                 <td className="table-cell font-medium text-gray-900">{p.name}</td>
-                <td className="table-cell capitalize">{p.category.replace("-", " ")}</td>
+                <td className="table-cell capitalize whitespace-nowrap">{p.category.replace("-", " ")}</td>
                 <td className="table-cell text-gray-600">{p.compatibleWith}</td>
-                <td className="table-cell text-right">{money(p.price)}</td>
+                <td className="table-cell text-right whitespace-nowrap">{money(p.price)}</td>
                 <td className="table-cell text-right"><span className={`text-xs rounded-full px-2 py-0.5 ${p.stock === 0 ? "bg-red-100 text-red-800" : p.stock <= 3 ? "bg-amber-100 text-amber-800" : "bg-green-100 text-green-800"}`}>{p.stock}</span></td>
                 <td className="table-cell text-right"><Link href={`/admin/parts/${p.id}`} className="text-brand-700 hover:text-brand-900 text-sm">Edit</Link></td>
               </tr>
@@ -73,6 +74,7 @@ export default async function AdminPartsPage({
             {parts.length === 0 && (<tr><td className="table-cell text-center text-gray-500 py-10" colSpan={6}>No parts.</td></tr>)}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

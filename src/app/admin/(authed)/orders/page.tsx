@@ -51,6 +51,7 @@ export default async function AdminOrdersPage({
       </form>
 
       <div className="mt-6 card overflow-hidden">
+        <div className="table-wrap">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-600">
             <tr>
@@ -69,13 +70,16 @@ export default async function AdminOrdersPage({
               const st = o.status as OrderStatus;
               return (
                 <tr key={o.id} className="hover:bg-gray-50">
-                  <td className="table-cell font-mono text-xs">{o.orderNumber}</td>
-                  <td className="table-cell text-gray-600">{date(o.createdAt)}</td>
-                  <td className="table-cell"><div className="font-medium text-gray-900">{o.customerName}</div><div className="text-xs text-gray-500">{o.customerEmail}</div></td>
-                  <td className="table-cell text-xs text-gray-600">{o.city}, {o.province}</td>
+                  <td className="table-cell font-mono text-xs whitespace-nowrap">{o.orderNumber}</td>
+                  <td className="table-cell text-gray-600 whitespace-nowrap">{date(o.createdAt)}</td>
+                  <td className="table-cell">
+                    <div className="font-medium text-gray-900">{o.customerName}</div>
+                    <div className="text-xs text-gray-500">{o.customerEmail}</div>
+                  </td>
+                  <td className="table-cell text-xs text-gray-600 whitespace-nowrap">{o.city}, {o.province}</td>
                   <td className="table-cell text-xs text-gray-600">{o.items.length}</td>
-                  <td className="table-cell"><span className={`text-xs rounded-full px-2 py-0.5 ${ORDER_STATUS_COLOR[st] || "bg-gray-100"}`}>{ORDER_STATUS_LABELS[st] || o.status}</span></td>
-                  <td className="table-cell text-right font-medium">{money(o.total)}</td>
+                  <td className="table-cell"><span className={`text-xs rounded-full px-2 py-0.5 whitespace-nowrap ${ORDER_STATUS_COLOR[st] || "bg-gray-100"}`}>{ORDER_STATUS_LABELS[st] || o.status}</span></td>
+                  <td className="table-cell text-right font-medium whitespace-nowrap">{money(o.total)}</td>
                   <td className="table-cell text-right"><Link href={`/admin/orders/${o.id}`} className="text-brand-700 hover:text-brand-900 text-sm">View</Link></td>
                 </tr>
               );
@@ -83,6 +87,7 @@ export default async function AdminOrdersPage({
             {orders.length === 0 && (<tr><td className="table-cell text-center text-gray-500 py-10" colSpan={8}>No orders match this filter.</td></tr>)}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

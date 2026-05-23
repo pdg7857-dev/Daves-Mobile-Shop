@@ -21,11 +21,7 @@ export default async function AdminInventoryPage({
     ];
   }
 
-  const phones = await prisma.phone.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: { supplier: true }
-  });
+  const phones = await prisma.phone.findMany({ where, orderBy: { createdAt: "desc" }, include: { supplier: true } });
 
   return (
     <div>
@@ -50,6 +46,7 @@ export default async function AdminInventoryPage({
       </form>
 
       <div className="mt-6 card overflow-hidden">
+        <div className="table-wrap">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-600">
             <tr>
@@ -67,24 +64,27 @@ export default async function AdminInventoryPage({
             {phones.map((p) => (
               <tr key={p.id} className="hover:bg-gray-50">
                 <td className="table-cell">
-                  <div className="font-medium text-gray-900">{p.brand} {p.model}</div>
+                  <div className="font-medium text-gray-900 whitespace-nowrap">{p.brand} {p.model}</div>
                   <div className="text-xs text-gray-500">{[p.storage, p.color, p.condition].filter(Boolean).join(" · ")}</div>
                 </td>
-                <td className="table-cell"><span className={`text-xs rounded-full px-2 py-0.5 ${STATUS_COLOR[p.status] || "bg-gray-100"}`}>{STATUS_LABELS[p.status] || p.status}</span></td>
+                <td className="table-cell"><span className={`text-xs rounded-full px-2 py-0.5 whitespace-nowrap ${STATUS_COLOR[p.status] || "bg-gray-100"}`}>{STATUS_LABELS[p.status] || p.status}</span></td>
                 <td className="table-cell font-mono text-xs">
                   {p.imei && <div>IMEI: {p.imei}</div>}
                   {p.serial && <div>SN: {p.serial}</div>}
                 </td>
-                <td className="table-cell text-gray-600">{date(p.purchaseDate)}</td>
+                <td className="table-cell text-gray-600 whitespace-nowrap">{date(p.purchaseDate)}</td>
                 <td className="table-cell text-gray-600">{p.supplier?.name || p.purchasedFrom || "—"}</td>
-                <td className="table-cell text-right">{money(p.purchasePrice)}</td>
-                <td className="table-cell text-right font-medium text-brand-700">{money(p.askingPrice)}</td>
+                <td className="table-cell text-right whitespace-nowrap">{money(p.purchasePrice)}</td>
+                <td className="table-cell text-right font-medium text-brand-700 whitespace-nowrap">{money(p.askingPrice)}</td>
                 <td className="table-cell text-right"><Link href={`/admin/inventory/${p.id}`} className="text-brand-700 hover:text-brand-900 text-sm">Edit</Link></td>
               </tr>
             ))}
-            {phones.length === 0 && (<tr><td className="table-cell text-center text-gray-500 py-10" colSpan={8}>No phones found. <Link href="/admin/inventory/new" className="text-brand-700">Add one →</Link></td></tr>)}
+            {phones.length === 0 && (
+              <tr><td className="table-cell text-center text-gray-500 py-10" colSpan={8}>No phones found. <Link href="/admin/inventory/new" className="text-brand-700">Add one →</Link></td></tr>
+            )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

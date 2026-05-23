@@ -38,9 +38,7 @@ export default function SuppliersClient({ initial }: { initial: SupplierRow[] })
   return (
     <>
       <div className="mt-6 flex justify-end">
-        {!adding && (
-          <button onClick={() => setAdding(true)} className="btn-primary">+ Add supplier</button>
-        )}
+        {!adding && (<button onClick={() => setAdding(true)} className="btn-primary">+ Add supplier</button>)}
       </div>
 
       {adding && (
@@ -65,6 +63,7 @@ export default function SuppliersClient({ initial }: { initial: SupplierRow[] })
       )}
 
       <div className="mt-6 card overflow-hidden">
+        <div className="table-wrap">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-600">
             <tr>
@@ -77,17 +76,16 @@ export default function SuppliersClient({ initial }: { initial: SupplierRow[] })
           <tbody className="divide-y divide-gray-100">
             {initial.map((s) => (
               <tr key={s.id}>
-                <td className="table-cell font-medium text-gray-900">{s.name}</td>
+                <td className="table-cell font-medium text-gray-900 whitespace-nowrap">{s.name}</td>
                 <td className="table-cell text-gray-600">{s.contact || "—"}</td>
                 <td className="table-cell text-gray-600">{s.notes || "—"}</td>
                 <td className="table-cell text-right">{s.phoneCount}</td>
               </tr>
             ))}
-            {initial.length === 0 && (
-              <tr><td className="table-cell text-center text-gray-500 py-10" colSpan={4}>No suppliers yet.</td></tr>
-            )}
+            {initial.length === 0 && (<tr><td className="table-cell text-center text-gray-500 py-10" colSpan={4}>No suppliers yet.</td></tr>)}
           </tbody>
         </table>
+        </div>
       </div>
     </>
   );

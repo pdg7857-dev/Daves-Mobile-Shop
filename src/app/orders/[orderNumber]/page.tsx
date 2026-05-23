@@ -49,31 +49,33 @@ export default async function OrderStatusPage({
       {isNew && order.status === "pending_payment" && (
         <div className="mt-4 card p-5 bg-green-50 border-green-200">
           <h2 className="text-lg font-semibold text-green-900">🎉 Order placed!</h2>
-          <p className="mt-1 text-sm text-green-900">Thanks {order.customerName.split(" ")[0]}. Send your Interac e-Transfer of <strong>{money(order.total)}</strong> to <strong>{process.env.NEXT_PUBLIC_BUSINESS_EMAIL || "us"}</strong> with order number <strong>{order.orderNumber}</strong> in the memo. We&apos;ll email you a tracking number once your package ships.</p>
+          <p className="mt-1 text-sm text-green-900">Thanks {order.customerName.split(" ")[0]}. Send your Interac e-Transfer of <strong>{money(order.total)}</strong> to <strong className="break-all">{process.env.NEXT_PUBLIC_BUSINESS_EMAIL || "us"}</strong> with order number <strong>{order.orderNumber}</strong> in the memo. We&apos;ll email you a tracking number once your package ships.</p>
         </div>
       )}
 
-      <div className="mt-6 flex items-center justify-between">
-        <div><h1 className="text-2xl font-bold text-gray-900">Order {order.orderNumber}</h1><p className="text-sm text-gray-600">Placed {date(order.createdAt)}</p></div>
+      <div className="mt-6 flex items-center justify-between gap-3 flex-wrap">
+        <div><h1 className="text-2xl font-bold text-gray-900 break-all">Order {order.orderNumber}</h1><p className="text-sm text-gray-600">Placed {date(order.createdAt)}</p></div>
         <span className={`text-sm rounded-full px-3 py-1 font-medium ${ORDER_STATUS_COLOR[status] || "bg-gray-100"}`}>{ORDER_STATUS_LABELS[status] || order.status}</span>
       </div>
 
       {order.trackingNumber && (
         <div className="mt-4 card p-4 bg-purple-50 border-purple-200">
           <h3 className="font-semibold text-purple-900">📦 Shipped</h3>
-          <p className="mt-1 text-sm text-purple-900">Carrier: <strong>{order.carrier || "—"}</strong> · Tracking number: <strong className="font-mono">{order.trackingNumber}</strong>{order.shippedAt && <> · Shipped {date(order.shippedAt)}</>}</p>
+          <p className="mt-1 text-sm text-purple-900">Carrier: <strong>{order.carrier || "—"}</strong> · Tracking number: <strong className="font-mono break-all">{order.trackingNumber}</strong>{order.shippedAt && <> · Shipped {date(order.shippedAt)}</>}</p>
         </div>
       )}
 
       <div className="mt-6 card overflow-hidden">
+        <div className="table-wrap">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-600">
             <tr><th className="table-cell">Item</th><th className="table-cell text-right">Qty</th><th className="table-cell text-right">Price</th><th className="table-cell text-right">Total</th></tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {order.items.map((i) => (<tr key={i.id}><td className="table-cell">{i.name}</td><td className="table-cell text-right">{i.quantity}</td><td className="table-cell text-right">{money(i.unitPrice)}</td><td className="table-cell text-right">{money(i.unitPrice * i.quantity)}</td></tr>))}
+            {order.items.map((i) => (<tr key={i.id}><td className="table-cell">{i.name}</td><td className="table-cell text-right">{i.quantity}</td><td className="table-cell text-right whitespace-nowrap">{money(i.unitPrice)}</td><td className="table-cell text-right whitespace-nowrap">{money(i.unitPrice * i.quantity)}</td></tr>))}
           </tbody>
         </table>
+        </div>
         <dl className="border-t border-gray-100 p-4 space-y-1 text-sm">
           <div className="flex justify-between"><dt className="text-gray-600">Subtotal</dt><dd>{money(order.subtotal)}</dd></div>
           {order.discountAmount > 0 && (<div className="flex justify-between text-green-700"><dt>Discount{order.discountCode ? ` (${order.discountCode.code})` : ""}</dt><dd>−{money(order.discountAmount)}</dd></div>)}
@@ -86,17 +88,11 @@ export default async function OrderStatusPage({
       <div className="mt-6 grid sm:grid-cols-2 gap-4">
         <div className="card p-5">
           <h3 className="font-semibold text-gray-900">Shipping to</h3>
-          <address className="mt-2 not-italic text-sm text-gray-700 leading-relaxed">
-            {order.customerName}<br />
-            {order.addressLine1}<br />
-            {order.addressLine2 && <>{order.addressLine2}<br /></>}
-            {order.city}, {order.province} {order.postalCode}<br />
-            Canada
-          </address>
+          <address className="mt-2 not-italic text-sm text-gray-700 leading-relaxed">{order.customerName}<br />{order.addressLine1}<br />{order.addressLine2 && <>{order.addressLine2}<br /></>}{order.city}, {order.province} {order.postalCode}<br />Canada</address>
         </div>
         <div className="card p-5">
           <h3 className="font-semibold text-gray-900">Contact</h3>
-          <p className="mt-2 text-sm text-gray-700">{order.customerEmail}</p>
+          <p className="mt-2 text-sm text-gray-700 break-all">{order.customerEmail}</p>
           {order.customerPhone && <p className="text-sm text-gray-700">{order.customerPhone}</p>}
           {order.customerNotes && (<p className="mt-3 text-xs text-gray-500 italic">Notes: {order.customerNotes}</p>)}
         </div>

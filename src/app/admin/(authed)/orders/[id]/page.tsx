@@ -27,7 +27,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       <Link href="/admin/orders" className="text-sm text-brand-700">← Back to orders</Link>
 
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-        <div><h1 className="text-2xl font-bold text-gray-900 font-mono">{order.orderNumber}</h1><p className="text-sm text-gray-600">Placed {date(order.createdAt)}</p></div>
+        <div><h1 className="text-2xl font-bold text-gray-900 font-mono break-all">{order.orderNumber}</h1><p className="text-sm text-gray-600">Placed {date(order.createdAt)}</p></div>
         <span className={`text-sm rounded-full px-3 py-1 font-medium ${ORDER_STATUS_COLOR[status] || "bg-gray-100"}`}>{ORDER_STATUS_LABELS[status] || order.status}</span>
       </div>
 
@@ -35,6 +35,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         <div className="lg:col-span-2 space-y-6">
           <div className="card overflow-hidden">
             <h2 className="px-4 py-3 border-b border-gray-100 font-semibold text-gray-900">Items</h2>
+            <div className="table-wrap">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-600">
                 <tr><th className="table-cell">Item</th><th className="table-cell">Inventory</th><th className="table-cell text-right">Qty</th><th className="table-cell text-right">Price</th><th className="table-cell text-right">Total</th></tr>
@@ -44,16 +45,17 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                   <tr key={i.id}>
                     <td className="table-cell">{i.name}</td>
                     <td className="table-cell text-xs">
-                      {i.phone && (<Link href={`/admin/inventory/${i.phone.id}`} className="text-brand-700 hover:text-brand-900">📱 Phone · IMEI {i.phone.imei || "—"}</Link>)}
-                      {i.part && (<Link href={`/admin/parts/${i.part.id}`} className="text-brand-700 hover:text-brand-900">🔧 Part · stock now {i.part.stock}</Link>)}
+                      {i.phone && (<Link href={`/admin/inventory/${i.phone.id}`} className="text-brand-700 hover:text-brand-900 whitespace-nowrap">📱 IMEI {i.phone.imei || "—"}</Link>)}
+                      {i.part && (<Link href={`/admin/parts/${i.part.id}`} className="text-brand-700 hover:text-brand-900 whitespace-nowrap">🔧 stock now {i.part.stock}</Link>)}
                     </td>
                     <td className="table-cell text-right">{i.quantity}</td>
-                    <td className="table-cell text-right">{money(i.unitPrice)}</td>
-                    <td className="table-cell text-right">{money(i.unitPrice * i.quantity)}</td>
+                    <td className="table-cell text-right whitespace-nowrap">{money(i.unitPrice)}</td>
+                    <td className="table-cell text-right whitespace-nowrap">{money(i.unitPrice * i.quantity)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            </div>
             <dl className="border-t border-gray-100 p-4 space-y-1 text-sm">
               <div className="flex justify-between"><dt className="text-gray-600">Subtotal</dt><dd>{money(order.subtotal)}</dd></div>
               {order.discountAmount > 0 && (<div className="flex justify-between text-green-700"><dt>Discount{order.discountCode ? ` (${order.discountCode.code})` : ""}</dt><dd>−{money(order.discountAmount)}</dd></div>)}
@@ -70,12 +72,12 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               <h2 className="font-semibold text-gray-900">🛡️ Dave Care plans on this order</h2>
               <ul className="mt-3 space-y-2">
                 {order.daveCarePlans.map((p) => (
-                  <li key={p.id} className="flex items-center justify-between text-sm">
-                    <div>
-                      <Link href={`/admin/dave-care/${p.id}`} className="font-medium text-gray-900 hover:text-brand-700">{p.phoneLabel}</Link>
+                  <li key={p.id} className="flex items-center justify-between text-sm gap-3">
+                    <div className="min-w-0">
+                      <Link href={`/admin/dave-care/${p.id}`} className="font-medium text-gray-900 hover:text-brand-700 block truncate">{p.phoneLabel}</Link>
                       <div className="text-xs text-gray-500 capitalize">{p.planType} · status: {p.status}</div>
                     </div>
-                    <Link href={`/admin/dave-care/${p.id}`} className="text-brand-700 hover:text-brand-900 text-sm">Manage →</Link>
+                    <Link href={`/admin/dave-care/${p.id}`} className="text-brand-700 hover:text-brand-900 text-sm whitespace-nowrap">Manage →</Link>
                   </li>
                 ))}
               </ul>
@@ -87,7 +89,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           <div className="card p-5">
             <h3 className="font-semibold text-gray-900">Customer</h3>
             <p className="mt-2 text-sm text-gray-900">{order.customerName}</p>
-            <p className="text-sm"><a href={`mailto:${order.customerEmail}`} className="text-brand-700 hover:text-brand-900">{order.customerEmail}</a></p>
+            <p className="text-sm break-all"><a href={`mailto:${order.customerEmail}`} className="text-brand-700 hover:text-brand-900">{order.customerEmail}</a></p>
             {order.customerPhone && (<p className="text-sm"><a href={`tel:${order.customerPhone}`} className="text-brand-700 hover:text-brand-900">{order.customerPhone}</a></p>)}
           </div>
           <div className="card p-5">
