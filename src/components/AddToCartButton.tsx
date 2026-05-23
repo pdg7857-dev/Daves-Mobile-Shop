@@ -37,7 +37,7 @@ export default function AddToCartButton({
 
   if (disabled) {
     return (
-      <button disabled className="btn bg-gray-200 text-gray-500 cursor-not-allowed">
+      <button disabled className="btn bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700">
         Unavailable
       </button>
     );
@@ -46,11 +46,11 @@ export default function AddToCartButton({
   return (
     <div className="flex flex-wrap items-center gap-3">
       {allowQuantity && (
-        <div className="flex items-center gap-1 border border-gray-300 rounded-md">
+        <div className="flex items-center gap-1 border border-gray-700 rounded-md">
           <button
             type="button"
             onClick={() => setQty(Math.max(1, qty - 1))}
-            className="px-3 py-2 text-gray-700 hover:bg-gray-50"
+            className="px-3 py-2 text-gray-300 hover:bg-gray-800"
             aria-label="Decrease quantity"
           >
             −
@@ -59,7 +59,7 @@ export default function AddToCartButton({
           <button
             type="button"
             onClick={() => setQty(Math.min((item.maxQuantity ?? 99), qty + 1))}
-            className="px-3 py-2 text-gray-700 hover:bg-gray-50"
+            className="px-3 py-2 text-gray-300 hover:bg-gray-800"
             aria-label="Increase quantity"
           >
             +

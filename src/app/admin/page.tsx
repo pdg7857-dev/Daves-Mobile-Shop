@@ -13,11 +13,11 @@ export default async function AdminLoginPage({
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md card p-8">
-        <h1 className="text-2xl font-bold text-gray-900">Staff sign in</h1>
-        <p className="mt-1 text-sm text-gray-600">Inventory and order management.</p>
+        <h1 className="text-2xl font-bold text-white">Staff sign in</h1>
+        <p className="mt-1 text-sm text-gray-400">Inventory and order management.</p>
 
         {sp.error && (
-          <div className="mt-4 rounded-md bg-red-50 border border-red-200 text-red-800 text-sm p-3">
+          <div className="mt-4 rounded-md bg-red-900/30 border border-red-700/50 text-red-300 text-sm p-3">
             Incorrect password.
           </div>
         )}
@@ -40,7 +40,7 @@ export default async function AdminLoginPage({
         </form>
 
         <p className="mt-6 text-xs text-gray-500">
-          <Link href="/" className="hover:text-gray-700">← Back to site</Link>
+          <Link href="/" className="hover:text-gray-300">← Back to site</Link>
         </p>
       </div>
     </div>

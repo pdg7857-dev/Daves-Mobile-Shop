@@ -73,13 +73,19 @@ export default function DiscountForm({
 
   return (
     <form onSubmit={submit} className="max-w-2xl space-y-4">
-      {error && <div className="rounded-md bg-red-50 border border-red-200 text-red-800 text-sm p-3">{error}</div>}
+      {error && <div className="rounded-md bg-red-50 border border-red-200 text-red-700 text-sm p-3">{error}</div>}
 
       <div className="card p-5 space-y-4">
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="label">Code *</label>
-            <input className="input font-mono uppercase" required value={form.code} onChange={(e) => update("code", e.target.value.toUpperCase())} placeholder="WELCOME10" />
+            <input
+              className="input font-mono uppercase"
+              required
+              value={form.code}
+              onChange={(e) => update("code", e.target.value.toUpperCase())}
+              placeholder="WELCOME10"
+            />
           </div>
           <div>
             <label className="label">Active</label>
