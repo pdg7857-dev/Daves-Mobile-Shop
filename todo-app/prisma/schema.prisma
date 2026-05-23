@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// A unified to-do item. Tasks come from one of four sources: PERSONAL (manually
+// added), MOBILE_SHOP_ORDER, MOBILE_SHOP_CARE_PLAN, or TOYOTA_LEAD. Scraped tasks
+// are upserted on (source, sourceId) so re-running a sync is idempotent.
+model Task {
+  id              Int       @id @default(autoincrement())
+  title           String
+  description     String?
+  status          String    @default("open") // open | done | snoozed | dismissed
+  priority        String    @default("normal") // low | normal | high | urgent
+  source          String // PERSONAL | MOBILE_SHOP_ORDER | MOBILE_SHOP_CARE_PLAN | TOYOTA_LEAD
+  sourceId        String? // orderNumber, customerId, careplan id
+  sourceUrl       String?
+  sourceMetadata  Json?
+  dueDate         DateTime?
+  completedAt     DateTime?
+  snoozedUntil    DateTime?
+  recurringTaskId Int?
+  recurringTask   RecurringTask? @relation(fields: [recurringTaskId], references: [id], onDelete: SetNull)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([source, sourceId])
+  @@index([status, dueDate])
+  @@index([source, status])
+}
+
+// A template for tasks that re-occur on a schedule. Each spawn creates a fresh
+// Task pointing back to this template via recurringTaskId.
+model RecurringTask {
+  id            Int       @id @default(autoincrement())
+  title         String
+  description   String?
+  priority      String    @default("normal")
+  frequency     String // DAILY | WEEKLY | MONTHLY
+  intervalCount Int       @default(1) // every N days/weeks/months
+  daysOfWeek    Int[]     @default([]) // 0-6 for WEEKLY (0=Sunday)
+  dayOfMonth    Int? // 1-31 for MONTHLY
+  startDate     DateTime
+  nextDueDate   DateTime
+  lastSpawnedAt DateTime?
+  active        Boolean   @default(true)
+  tasks         Task[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([active, nextDueDate])
+}
+
+// Audit trail for sync runs against external sources.
+model SyncRun {
+  id           Int       @id @default(autoincrement())
+  source       String // MOBILE_SHOP | TOYOTA
+  startedAt    DateTime  @default(now())
+  completedAt  DateTime?
+  status       String    @default("running") // running | success | error
+  itemsAdded   Int       @default(0)
+  itemsUpdated Int       @default(0)
+  itemsClosed  Int       @default(0)
+  errorMessage String?
+
+  @@index([source, startedAt])
+}
