@@ -14,13 +14,13 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#1d4ed8"
+  themeColor: "#0a0a0f"
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-gray-50 text-gray-900 antialiased">
+      <body className="min-h-screen flex flex-col bg-gray-950 text-gray-100 antialiased">
         <CartProvider>
           <Header />
           <main className="flex-1">{children}</main>
