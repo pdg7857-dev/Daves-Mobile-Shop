@@ -69,6 +69,8 @@ def main() -> int:
             tag += " HANDOFF"
         tag += "]"
         print(f"bot> {reply.text}  {tag}")
+        if reply.quick_replies:
+            print("     buttons: " + " | ".join(f"[{q}]" for q in reply.quick_replies))
 
 
 if __name__ == "__main__":

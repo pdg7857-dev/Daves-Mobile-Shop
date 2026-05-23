@@ -10,6 +10,7 @@ for a mobile phone repair / sales / purchasing business.
 - `app/intents/` — Cheap keyword intent classifier for logging/analytics.
 - `app/quoting/` — JSON-backed price book (`data/price_book.json`) with device + issue alias matching.
 - `app/inventory/` — JSON-backed used-device stock (`data/inventory.json`). The bot can search it and mark items reserved.
+- `app/rate_limit.py` — Sliding-window per-sender rate limiter (defaults: 30 events / 5 minutes), with single-shot cooldown on the "slow down" reply.
 - `app/storage/` — `Store` protocol with two implementations: `InMemoryStore` for tests and `SqliteStore` for prod.
 - `app/admin/` — Tiny HTTP-Basic-auth dashboard at `/admin`: conversation list, transcripts, leads, and a "take over / resume bot" button.
 - `app/config/` — Settings loaded from env vars.
@@ -41,6 +42,7 @@ Set `ADMIN_USERNAME` and `ADMIN_PASSWORD` in `.env`, then visit
 `http://localhost:8000/admin` and log in. Pages:
 
 - **Conversations** — list + per-thread transcript, with a take-over/resume button.
+- **Tickets** — repair tickets list, status dropdowns to advance (`received` → `diagnosing` → `in_progress` → `ready` → `picked_up`), and a "New ticket" form. The bot reads from this table when answering "is my repair ready?".
 - **Leads** — every `capture_lead` / `reserve_sale` the bot has captured, with a `Export CSV` link (`/admin/leads.csv`).
 - **Inventory** — current `data/inventory.json` contents (available + sold).
 

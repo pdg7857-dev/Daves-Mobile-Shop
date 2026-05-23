@@ -10,6 +10,7 @@ from app.ai.attachments import InboundAttachment
 from app.config import get_settings
 from app.messenger.send_api import SendAPI
 from app.messenger.verify import verify_signature
+from app.rate_limit import get_rate_limiter
 
 log = logging.getLogger(__name__)
 
@@ -65,6 +66,13 @@ async def _handle_event(event: dict) -> None:
     message = event.get("message") or {}
     text = message.get("text") or ""
 
+    # When the user taps a quick-reply button, Meta sends both `text` (the
+    # button title) and `quick_reply.payload`. Prefer the payload — it's what
+    # we set explicitly and won't be truncated to 20 chars.
+    quick_payload = (message.get("quick_reply") or {}).get("payload")
+    if quick_payload:
+        text = quick_payload
+
     attachments: list[InboundAttachment] = []
     for att in message.get("attachments") or []:
         if att.get("type") == "image":
@@ -76,7 +84,18 @@ async def _handle_event(event: dict) -> None:
         log.debug("skipping event with no text or images: %s", event)
         return
 
+    limiter = get_rate_limiter()
     send = SendAPI()
+    if not limiter.allow(sender_id):
+        if limiter.should_notify(sender_id):
+            await send.send_text(
+                sender_id,
+                "Quick heads-up — you're sending a lot of messages in a short span. "
+                "Hang tight and someone will reply shortly.",
+            )
+        log.info("rate-limited sender %s", sender_id)
+        return
+
     await send.mark_seen(sender_id)
 
     engine = get_engine()
@@ -84,4 +103,4 @@ async def _handle_event(event: dict) -> None:
     if reply is None or not reply.text:
         return
 
-    await send.send_text(sender_id, reply.text)
+    await send.send_text(sender_id, reply.text, quick_replies=reply.quick_replies or None)

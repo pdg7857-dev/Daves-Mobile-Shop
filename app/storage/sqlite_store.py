@@ -5,7 +5,7 @@ import threading
 import time
 from pathlib import Path
 
-from app.storage.store import Conversation, Lead, Message
+from app.storage.store import Conversation, Lead, Message, Ticket, TicketStatus
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS conversations (
@@ -36,6 +36,22 @@ CREATE TABLE IF NOT EXISTS leads (
     FOREIGN KEY (sender_id) REFERENCES conversations(sender_id)
 );
 CREATE INDEX IF NOT EXISTS idx_leads_sender_ts ON leads(sender_id, ts);
+
+CREATE TABLE IF NOT EXISTS tickets (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_name   TEXT NOT NULL,
+    customer_phone  TEXT NOT NULL,
+    customer_email  TEXT NOT NULL,
+    device          TEXT NOT NULL,
+    issue           TEXT NOT NULL,
+    status          TEXT NOT NULL,
+    notes           TEXT NOT NULL DEFAULT '',
+    created_at      REAL NOT NULL,
+    updated_at      REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_tickets_phone ON tickets(customer_phone);
+CREATE INDEX IF NOT EXISTS idx_tickets_email ON tickets(customer_email);
+CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
 """
 
 
@@ -159,6 +175,86 @@ class SqliteStore:
             ).fetchall()
         return [dict(r) for r in rows]
 
+    # --- tickets ---
+
+    def create_ticket(self, ticket: Ticket) -> Ticket:
+        with self._lock:
+            cur = self._conn.execute(
+                "INSERT INTO tickets (customer_name, customer_phone, customer_email, "
+                "device, issue, status, notes, created_at, updated_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    ticket.customer_name,
+                    ticket.customer_phone,
+                    ticket.customer_email,
+                    ticket.device,
+                    ticket.issue,
+                    ticket.status,
+                    ticket.notes,
+                    ticket.created_at,
+                    ticket.updated_at,
+                ),
+            )
+            self._conn.commit()
+            ticket.id = cur.lastrowid
+        return ticket
+
+    def list_tickets(self) -> list[Ticket]:
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM tickets ORDER BY updated_at DESC"
+            ).fetchall()
+        return [_row_to_ticket(r) for r in rows]
+
+    def find_tickets(self, query: str) -> list[Ticket]:
+        q = query.strip().lower()
+        if not q:
+            return []
+        digits = "".join(c for c in q if c.isdigit())
+        clauses: list[str] = []
+        params: list[object] = []
+        if digits and len(digits) >= 4:
+            clauses.append("REPLACE(REPLACE(REPLACE(REPLACE(customer_phone, '-', ''), ' ', ''), '(', ''), ')', '') LIKE ?")
+            params.append(f"%{digits}%")
+        clauses.append("LOWER(customer_email) LIKE ?")
+        params.append(f"%{q}%")
+        clauses.append("LOWER(customer_name) LIKE ?")
+        params.append(f"%{q}%")
+        if q.lstrip("#").isdigit():
+            clauses.append("id = ?")
+            params.append(int(q.lstrip("#")))
+        sql = "SELECT * FROM tickets WHERE " + " OR ".join(clauses) + " ORDER BY updated_at DESC"
+        with self._lock:
+            rows = self._conn.execute(sql, params).fetchall()
+        return [_row_to_ticket(r) for r in rows]
+
+    def update_ticket_status(self, ticket_id: int, status: TicketStatus) -> Ticket | None:
+        with self._lock:
+            self._conn.execute(
+                "UPDATE tickets SET status=?, updated_at=? WHERE id=?",
+                (status, time.time(), ticket_id),
+            )
+            self._conn.commit()
+            row = self._conn.execute(
+                "SELECT * FROM tickets WHERE id=?", (ticket_id,)
+            ).fetchone()
+        return _row_to_ticket(row) if row else None
+
     def close(self) -> None:
         with self._lock:
             self._conn.close()
+
+
+def _row_to_ticket(row: sqlite3.Row) -> Ticket:
+    return Ticket(
+        id=row["id"],
+        customer_name=row["customer_name"],
+        customer_phone=row["customer_phone"],
+        customer_email=row["customer_email"],
+        device=row["device"],
+        issue=row["issue"],
+        status=row["status"],
+        notes=row["notes"],
+        created_at=row["created_at"],
+        updated_at=row["updated_at"],
+    )

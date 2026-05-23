@@ -104,6 +104,50 @@ TOOL_DEFS: list[dict[str, Any]] = [
         },
     },
     {
+        "name": "lookup_ticket",
+        "description": (
+            "Look up a customer's repair ticket(s) so you can tell them the "
+            "status (received, diagnosing, in_progress, ready, picked_up). "
+            "Search by phone number, email, name, or ticket id. Ask the "
+            "customer for a phone number or ticket id before calling this. "
+            "Do not invent a status for tickets that aren't returned."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": (
+                        "Phone number (any format — digits will be extracted), "
+                        "email, customer name, or ticket id (with or without #)."
+                    ),
+                },
+            },
+            "required": ["query"],
+        },
+    },
+    {
+        "name": "propose_quick_replies",
+        "description": (
+            "Attach up to 4 short tappable reply buttons (Messenger quick replies) "
+            "to your next response. Use for clear yes/no questions or short option "
+            "lists (e.g. ['iPhone', 'Samsung', 'Other']). Don't use for free-form "
+            "questions. Each option must be 20 characters or fewer."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "options": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "minItems": 1,
+                    "maxItems": 4,
+                },
+            },
+            "required": ["options"],
+        },
+    },
+    {
         "name": "request_human",
         "description": (
             "Hand the conversation off to a human staff member. Use for upset "
@@ -129,6 +173,7 @@ class ToolRunner:
         self.store = store
         self.sender_id = sender_id
         self.handoff_requested = False
+        self.quick_replies: list[str] = []
 
     def run(self, name: str, args: dict[str, Any]) -> dict[str, Any]:
         if name == "quote_repair":
@@ -168,6 +213,28 @@ class ToolRunner:
                 )
             )
             return {"ok": True, "sku": item.sku, "price": item.price, "model": item.model}
+
+        if name == "lookup_ticket":
+            tickets = self.store.find_tickets(args["query"])
+            return {
+                "count": len(tickets),
+                "tickets": [
+                    {
+                        "id": t.id,
+                        "customer_name": t.customer_name,
+                        "device": t.device,
+                        "issue": t.issue,
+                        "status": t.status,
+                        "notes": t.notes,
+                    }
+                    for t in tickets
+                ],
+            }
+
+        if name == "propose_quick_replies":
+            opts = [str(o)[:20] for o in (args.get("options") or [])][:4]
+            self.quick_replies = opts
+            return {"ok": True, "set": opts}
 
         if name == "request_human":
             self.store.set_human_takeover(self.sender_id, True)

@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     admin_username: str = "admin"
     admin_password: str = ""  # disable dashboard auth-fail-open if blank? No — empty = locked.
 
+    # Per-sender rate limit on inbound Messenger events.
+    rate_limit_max_events: int = 30
+    rate_limit_window_seconds: float = 300.0
+
 
 @lru_cache
 def get_settings() -> Settings:

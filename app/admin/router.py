@@ -13,7 +13,8 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from app.config import get_settings
 from app.inventory import get_inventory
-from app.storage import get_store
+from app.storage import TICKET_STATUSES, Ticket, get_store
+import time
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 _security = HTTPBasic()
@@ -65,7 +66,7 @@ def _page(title: str, body: str) -> str:
   button:hover {{ background: #f6f6f6; }}
 </style></head>
 <body>
-<nav><a href="/admin">Conversations</a> <a href="/admin/leads">Leads</a> <a href="/admin/inventory">Inventory</a></nav>
+<nav><a href="/admin">Conversations</a> <a href="/admin/tickets">Tickets</a> <a href="/admin/leads">Leads</a> <a href="/admin/inventory">Inventory</a></nav>
 <h1>{html.escape(title)}</h1>
 {body}
 </body></html>"""
@@ -189,6 +190,100 @@ def leads_csv(_: str = Depends(_require_admin)) -> Response:
         media_type="text/csv",
         headers={"Content-Disposition": f'attachment; filename="{fname}"'},
     )
+
+
+@router.get("/tickets", response_class=HTMLResponse)
+def tickets_page(_: str = Depends(_require_admin)) -> HTMLResponse:
+    store = get_store()
+    tickets = store.list_tickets()
+    rows = []
+    for t in tickets:
+        status_options = "".join(
+            f"<option value='{s}'{' selected' if s == t.status else ''}>{s}</option>"
+            for s in TICKET_STATUSES
+        )
+        rows.append(
+            "<tr>"
+            f"<td>#{t.id}</td>"
+            f"<td>{html.escape(t.customer_name)}</td>"
+            f"<td>{html.escape(t.customer_phone)}</td>"
+            f"<td>{html.escape(t.device)}</td>"
+            f"<td>{html.escape(t.issue)}</td>"
+            f"<td>"
+            f"<form method='post' action='/admin/tickets/{t.id}/status' class='inline'>"
+            f"<select name='status'>{status_options}</select> "
+            f"<button>Update</button>"
+            f"</form>"
+            f"</td>"
+            f"<td>{_fmt_ts(t.updated_at)}</td>"
+            "</tr>"
+        )
+    status_opts = "".join(f"<option value='{s}'>{s}</option>" for s in TICKET_STATUSES)
+    form = (
+        "<h3>New ticket</h3>"
+        "<form method='post' action='/admin/tickets'>"
+        "<table>"
+        "<tr><td>Name</td><td><input name='customer_name' required></td></tr>"
+        "<tr><td>Phone</td><td><input name='customer_phone' required></td></tr>"
+        "<tr><td>Email</td><td><input name='customer_email'></td></tr>"
+        "<tr><td>Device</td><td><input name='device' required></td></tr>"
+        "<tr><td>Issue</td><td><input name='issue' required></td></tr>"
+        f"<tr><td>Status</td><td><select name='status'>{status_opts}</select></td></tr>"
+        "<tr><td>Notes</td><td><textarea name='notes' rows='2' cols='40'></textarea></td></tr>"
+        "</table>"
+        "<button>Create ticket</button>"
+        "</form>"
+    )
+    body = (
+        "<table><thead><tr><th>ID</th><th>Customer</th><th>Phone</th><th>Device</th>"
+        "<th>Issue</th><th>Status</th><th>Updated</th></tr></thead>"
+        "<tbody>" + ("".join(rows) or "<tr><td colspan=7>No tickets yet.</td></tr>") + "</tbody></table>"
+        + form
+    )
+    return HTMLResponse(_page("Repair tickets", body))
+
+
+@router.post("/tickets")
+def create_ticket(
+    customer_name: str = Form(...),
+    customer_phone: str = Form(...),
+    customer_email: str = Form(""),
+    device: str = Form(...),
+    issue: str = Form(...),
+    status_: str = Form("received", alias="status"),
+    notes: str = Form(""),
+    _: str = Depends(_require_admin),
+) -> RedirectResponse:
+    if status_ not in TICKET_STATUSES:
+        raise HTTPException(status_code=400, detail="bad status")
+    now = time.time()
+    get_store().create_ticket(
+        Ticket(
+            id=None,
+            customer_name=customer_name,
+            customer_phone=customer_phone,
+            customer_email=customer_email,
+            device=device,
+            issue=issue,
+            status=status_,
+            notes=notes,
+            created_at=now,
+            updated_at=now,
+        )
+    )
+    return RedirectResponse(url="/admin/tickets", status_code=303)
+
+
+@router.post("/tickets/{ticket_id}/status")
+def update_ticket_status_route(
+    ticket_id: int,
+    status_: str = Form(..., alias="status"),
+    _: str = Depends(_require_admin),
+) -> RedirectResponse:
+    if status_ not in TICKET_STATUSES:
+        raise HTTPException(status_code=400, detail="bad status")
+    get_store().update_ticket_status(ticket_id, status_)
+    return RedirectResponse(url="/admin/tickets", status_code=303)
 
 
 @router.get("/inventory", response_class=HTMLResponse)

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from anthropic import Anthropic
@@ -25,6 +25,7 @@ class Reply:
     intent: Intent
     handoff: bool
     tools_used: list[str]
+    quick_replies: list[str] = field(default_factory=list)
 
 
 class Engine:
@@ -78,6 +79,7 @@ class Engine:
             intent=intent,
             handoff=runner.handoff_requested,
             tools_used=tools_used,
+            quick_replies=runner.quick_replies,
         )
 
     def _run_with_tools(self, history: list[dict], runner: ToolRunner) -> tuple[str, list[str]]:

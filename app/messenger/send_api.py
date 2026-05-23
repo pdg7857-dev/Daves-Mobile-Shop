@@ -17,14 +17,25 @@ class SendAPI:
     def __init__(self, page_access_token: str | None = None) -> None:
         self.token = page_access_token or get_settings().messenger_page_access_token
 
-    async def send_text(self, recipient_id: str, text: str) -> None:
+    async def send_text(
+        self,
+        recipient_id: str,
+        text: str,
+        quick_replies: list[str] | None = None,
+    ) -> None:
         if not self.token:
             log.warning("MESSENGER_PAGE_ACCESS_TOKEN not set; skipping send to %s", recipient_id)
             return
+        message: dict = {"text": text}
+        if quick_replies:
+            message["quick_replies"] = [
+                {"content_type": "text", "title": opt[:20], "payload": opt[:1000]}
+                for opt in quick_replies[:13]  # Meta's hard limit is 13
+            ]
         payload = {
             "recipient": {"id": recipient_id},
             "messaging_type": "RESPONSE",
-            "message": {"text": text},
+            "message": message,
         }
         async with httpx.AsyncClient(timeout=10) as client:
             r = await client.post(

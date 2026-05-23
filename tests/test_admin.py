@@ -94,6 +94,49 @@ def test_inventory_view(client):
     assert "iPhone 13" in r.text
 
 
+def test_ticket_create_and_status_update(client):
+    r = client.post(
+        "/admin/tickets",
+        data={
+            "customer_name": "Sam",
+            "customer_phone": "555-0001",
+            "customer_email": "sam@x.com",
+            "device": "iPhone 14",
+            "issue": "battery",
+            "status": "received",
+            "notes": "needs same-day",
+        },
+        headers=_auth("tester", "secret123"),
+        follow_redirects=False,
+    )
+    assert r.status_code == 303
+
+    from app.storage import get_store
+
+    tickets = get_store().list_tickets()
+    assert len(tickets) == 1
+    t = tickets[0]
+    assert t.status == "received"
+
+    r = client.post(
+        f"/admin/tickets/{t.id}/status",
+        data={"status": "ready"},
+        headers=_auth("tester", "secret123"),
+        follow_redirects=False,
+    )
+    assert r.status_code == 303
+    assert get_store().list_tickets()[0].status == "ready"
+
+
+def test_ticket_status_validation(client):
+    r = client.post(
+        "/admin/tickets/999/status",
+        data={"status": "bogus"},
+        headers=_auth("tester", "secret123"),
+    )
+    assert r.status_code == 400
+
+
 def test_admin_locked_when_password_blank(tmp_path, monkeypatch):
     monkeypatch.setenv("STORE_BACKEND", "memory")
     monkeypatch.setenv("ADMIN_PASSWORD", "")
