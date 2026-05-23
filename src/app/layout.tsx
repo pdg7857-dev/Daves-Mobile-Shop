@@ -1,8 +1,16 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/components/CartProvider";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sf",
+  weight: ["400", "500", "600", "700"]
+});
 
 export const metadata: Metadata = {
   title: "Dave's Mobile Shop — Phone Repair & Refurbished Phones",
@@ -14,13 +22,13 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0a0a0f"
+  themeColor: "#000000"
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen flex flex-col bg-gray-950 text-gray-100 antialiased">
+    <html lang="en" className={inter.variable}>
+      <body className="min-h-screen flex flex-col bg-black text-white antialiased">
         <CartProvider>
           <Header />
           <main className="flex-1">{children}</main>

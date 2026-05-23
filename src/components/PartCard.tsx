@@ -19,28 +19,34 @@ export default function PartCard({ part }: Props) {
   return (
     <Link
       href={`/parts/${part.id}`}
-      className="card overflow-hidden hover:border-brand-500 transition-colors group flex flex-col"
+      className="card card-hover group flex flex-col"
     >
-      <div className="aspect-square bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-5xl">
+      <div className="aspect-square bg-gradient-to-br from-[#2a2a2d] to-[#1d1d1f] flex items-center justify-center overflow-hidden">
         {part.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={part.imageUrl} alt={part.name} className="w-full h-full object-cover" />
+          <img
+            src={part.imageUrl}
+            alt={part.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+          />
         ) : (
-          <span className="opacity-70">🔧</span>
+          <span className="text-6xl opacity-25">🔧</span>
         )}
       </div>
-      <div className="p-4 flex-1 flex flex-col">
-        <span className="text-xs font-semibold uppercase tracking-wide text-brand-400">
-          {part.category}
-        </span>
-        <h3 className="mt-1 font-semibold text-sm text-white group-hover:text-brand-300 transition-colors">
-          {part.name}
-        </h3>
-        <p className="mt-1 text-xs text-gray-400">{part.compatibleWith}</p>
-        <div className="mt-auto pt-3 flex items-center justify-between">
-          <span className="font-bold text-brand-300">{money(part.price)}</span>
-          <span className={`text-xs rounded-full px-2 py-0.5 border ${inStock ? "bg-green-900/40 text-green-300 border-green-700/50" : "bg-red-900/40 text-red-300 border-red-700/50"}`}>
-            {inStock ? `${part.stock} in stock` : "Out of stock"}
+      <div className="p-5 flex-1 flex flex-col">
+        <p className="eyebrow text-white/50">{part.category}</p>
+        <h3 className="mt-2 font-semibold text-[15px] text-white tracking-tight leading-snug">{part.name}</h3>
+        <p className="mt-1 text-[12px] text-white/55 truncate">{part.compatibleWith}</p>
+        <div className="mt-auto pt-4 flex items-center justify-between">
+          <span className="text-[17px] font-semibold tracking-tight text-white">{money(part.price)}</span>
+          <span
+            className={`text-[11px] font-medium rounded-full px-2.5 py-1 ${
+              inStock
+                ? "bg-emerald-500/15 text-emerald-300"
+                : "bg-red-500/15 text-red-300"
+            }`}
+          >
+            {inStock ? `${part.stock} in stock` : "Sold out"}
           </span>
         </div>
       </div>

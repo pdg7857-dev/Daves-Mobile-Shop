@@ -9,23 +9,31 @@ export const metadata = {
 
 export default function ServicesPage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <header className="max-w-2xl">
-        <h1 className="text-4xl font-bold text-white">Repair services</h1>
-        <p className="mt-3 text-gray-400">
-          Fixed-price quotes, OEM parts where possible, and a 90-day workmanship warranty on every repair.
-          Walk in or book ahead — most jobs done same day.
+    <div className="container-x py-20">
+      <header className="text-center max-w-3xl mx-auto">
+        <p className="eyebrow">Repair services</p>
+        <h1 className="mt-3 text-display-xl text-white tracking-tighter">
+          Every fix, fairly priced.
+        </h1>
+        <p className="mt-5 text-[18px] text-white/65 leading-relaxed">
+          Fixed-price quotes. OEM parts where possible. A 90-day workmanship
+          warranty on every repair. Walk in or book ahead — most jobs done same day.
         </p>
       </header>
-      <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+      <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {SERVICES.map((s) => (
           <ServiceCard key={s.slug} service={s} />
         ))}
       </div>
-      <div className="mt-12 card p-6 bg-brand-900/30 border-brand-800/50">
-        <h2 className="text-xl font-semibold text-brand-300">Don&apos;t see your device or repair?</h2>
-        <p className="mt-2 text-sm text-brand-400">
-          We service nearly every smartphone brand and many tablets. If it&apos;s not listed, just ask.
+
+      <div className="mt-12 card p-10 text-center max-w-2xl mx-auto">
+        <p className="eyebrow">Not on this list?</p>
+        <h2 className="mt-2 text-2xl font-semibold text-white tracking-tight">
+          We service nearly every smartphone.
+        </h2>
+        <p className="mt-3 text-[15px] text-white/65">
+          Tablets and smartwatches too. If it&rsquo;s not listed, just ask — we&rsquo;ll quote it.
         </p>
       </div>
     </div>

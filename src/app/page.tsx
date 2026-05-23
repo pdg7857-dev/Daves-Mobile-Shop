@@ -15,104 +15,192 @@ export default async function HomePage() {
   });
 
   return (
-    <div>
-      <section className="bg-gradient-to-br from-brand-700 to-brand-900 text-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 lg:py-28 grid lg:grid-cols-2 gap-10 items-center">
-          <div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              Phone broken? <span className="text-accent-500">We fix it today.</span>
-            </h1>
-            <p className="mt-5 text-lg text-brand-100 max-w-xl">
-              Honest, fast mobile phone repair and quality refurbished phones.
-              Serving the GTA, Montréal, Ottawa, Québec, Moncton and Halifax.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/services" className="btn bg-white text-brand-700 hover:bg-brand-50">
-                See repair pricing
-              </Link>
-              <Link href="/inventory" className="btn border border-white/30 text-white hover:bg-white/10">
-                Shop phones
-              </Link>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-brand-100">
-              <span>✓ 90-day warranty</span>
-              <span>✓ OEM parts</span>
-              <span>✓ Same-day service</span>
-              <span>✓ Ship anywhere in Canada</span>
-            </div>
-          </div>
-          <div className="hidden lg:flex justify-center">
-            <div className="text-[14rem]">📱</div>
+    <div className="space-y-2">
+      {/* ===================== HERO ===================== */}
+      <section className="hero-radial">
+        <div className="container-narrow text-center pt-24 pb-20 sm:pt-32 sm:pb-28">
+          <p className="eyebrow animate-fade-up">Dave&rsquo;s Mobile Shop</p>
+          <h1 className="mt-3 text-display-2xl text-white animate-fade-up [animation-delay:60ms]">
+            Phones, repaired.
+            <br />
+            <span className="bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent">
+              Reborn.
+            </span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-[19px] leading-relaxed text-white/70 animate-fade-up [animation-delay:120ms]">
+            Honest, same-day repair on every iPhone, Samsung and Pixel.
+            Quality refurbished devices, OEM parts, 90-day warranty —
+            shipped Canada-wide.
+          </p>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 animate-fade-up [animation-delay:180ms]">
+            <Link href="/services" className="link-chevron">See repair pricing</Link>
+            <Link href="/inventory" className="link-chevron">Shop phones</Link>
+            <Link href="/contact" className="link-chevron">Get a quote</Link>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <div className="flex items-end justify-between">
-          <div>
-            <h2 className="text-3xl font-bold text-white">Repair services</h2>
-            <p className="mt-2 text-gray-400">Fixed-price quotes. Most done same day.</p>
-          </div>
-          <Link href="/services" className="hidden sm:inline-block text-sm font-medium text-brand-300 hover:text-brand-200">
-            See all services →
+      {/* ===================== BENTO HIGHLIGHTS ===================== */}
+      <section className="container-x py-3">
+        <div className="grid gap-3 lg:grid-cols-2">
+          {/* Big repair tile */}
+          <Link
+            href="/services"
+            className="group card panel-gradient relative isolate min-h-[520px] flex flex-col p-10 sm:p-14 overflow-hidden card-hover"
+          >
+            <div className="relative z-10">
+              <p className="eyebrow">Repair</p>
+              <h2 className="mt-3 text-display-lg text-white">
+                Same-day fix.
+                <br />
+                Lifetime peace of mind.
+              </h2>
+              <p className="mt-4 text-[17px] text-white/70 max-w-md">
+                Screens, batteries, cameras, charging ports. Fixed-price quotes,
+                OEM parts and a 90-day workmanship warranty.
+              </p>
+              <p className="mt-7 link-chevron">Book a repair</p>
+            </div>
+            <div
+              className="pointer-events-none absolute -right-20 -bottom-24 h-[420px] w-[420px] rounded-full opacity-30 blur-3xl transition-opacity group-hover:opacity-50"
+              style={{ background: "radial-gradient(circle, #0071e3 0%, transparent 65%)" }}
+            />
+          </Link>
+
+          {/* Big shop tile */}
+          <Link
+            href="/inventory"
+            className="group card relative isolate min-h-[520px] flex flex-col p-10 sm:p-14 overflow-hidden card-hover"
+            style={{ background: "linear-gradient(135deg, #1d1d1f 0%, #2a2a2d 60%, #1d1d1f 100%)" }}
+          >
+            <div className="relative z-10">
+              <p className="eyebrow text-white/60">Refurbished</p>
+              <h2 className="mt-3 text-display-lg text-white">
+                Pre-loved.
+                <br />
+                Fully tested.
+              </h2>
+              <p className="mt-4 text-[17px] text-white/70 max-w-md">
+                Every device inspected, cleaned and certified. iPhones, Samsungs,
+                Pixels — with 30-day money-back, 90-day warranty.
+              </p>
+              <p className="mt-7 link-chevron">Shop the lineup</p>
+            </div>
+            <div
+              className="pointer-events-none absolute -left-24 -top-24 h-[420px] w-[420px] rounded-full opacity-25 blur-3xl"
+              style={{ background: "radial-gradient(circle, #a855f7 0%, transparent 65%)" }}
+            />
           </Link>
         </div>
-        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        {/* Smaller tile row */}
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <div className="card panel-gradient p-8 min-h-[200px] flex flex-col justify-between">
+            <div>
+              <p className="eyebrow">90-day</p>
+              <p className="mt-2 text-display-md text-white">Warranty</p>
+            </div>
+            <p className="text-[14px] text-white/55">On every repair we ship out the door.</p>
+          </div>
+          <div className="card panel-gradient p-8 min-h-[200px] flex flex-col justify-between">
+            <div>
+              <p className="eyebrow">OEM</p>
+              <p className="mt-2 text-display-md text-white">Parts only</p>
+            </div>
+            <p className="text-[14px] text-white/55">Genuine parts wherever possible. Always disclosed.</p>
+          </div>
+          <div className="card panel-gradient p-8 min-h-[200px] flex flex-col justify-between">
+            <div>
+              <p className="eyebrow">Free shipping</p>
+              <p className="mt-2 text-display-md text-white">Across Canada</p>
+            </div>
+            <p className="text-[14px] text-white/55">On orders over $200. Tracked, insured.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== SERVICES ===================== */}
+      <section className="container-x pt-20 pb-8">
+        <div className="text-center max-w-3xl mx-auto">
+          <p className="eyebrow">What we fix</p>
+          <h2 className="mt-3 text-display-lg text-white tracking-tighter">
+            Every screen. Every battery.
+            <span className="text-white/55"> Every time.</span>
+          </h2>
+          <p className="mt-5 text-[17px] text-white/65">
+            Fixed-price quotes. Most jobs done same day.
+          </p>
+        </div>
+        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {SERVICES.slice(0, 4).map((s) => (
             <ServiceCard key={s.slug} service={s} />
           ))}
         </div>
+        <div className="mt-8 text-center">
+          <Link href="/services" className="link-chevron">See all services</Link>
+        </div>
       </section>
 
+      {/* ===================== FEATURED PHONES ===================== */}
       {featured.length > 0 && (
-        <section className="bg-gray-900/40 border-y border-gray-800">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-            <div className="flex items-end justify-between">
-              <div>
-                <h2 className="text-3xl font-bold text-white">Just in</h2>
-                <p className="mt-2 text-gray-400">Tested, cleaned and ready to go.</p>
-              </div>
-              <Link href="/inventory" className="hidden sm:inline-block text-sm font-medium text-brand-300 hover:text-brand-200">
-                See all phones →
-              </Link>
-            </div>
-            <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {featured.map((p) => (
-                <PhoneCard key={p.id} phone={p} />
-              ))}
-            </div>
+        <section className="container-x pt-20 pb-8">
+          <div className="text-center max-w-3xl mx-auto">
+            <p className="eyebrow">Just in</p>
+            <h2 className="mt-3 text-display-lg text-white tracking-tighter">
+              Tested. Cleaned. <span className="text-white/55">Ready to go.</span>
+            </h2>
+          </div>
+          <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {featured.map((p) => (
+              <PhoneCard key={p.id} phone={p} />
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <Link href="/inventory" className="link-chevron">Browse all phones</Link>
           </div>
         </section>
       )}
 
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-3xl font-bold text-white">Find us near you</h2>
-        <p className="mt-2 text-gray-400">Locations across Eastern Canada.</p>
-        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* ===================== LOCATIONS ===================== */}
+      <section className="container-x pt-20 pb-8">
+        <div className="text-center max-w-3xl mx-auto">
+          <p className="eyebrow">Coast to coast (almost)</p>
+          <h2 className="mt-3 text-display-lg text-white tracking-tighter">
+            Find a shop near you.
+          </h2>
+        </div>
+        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {CITIES.map((city) => (
             <Link
               key={city.slug}
               href={`/locations/${city.slug}`}
-              className="card p-6 hover:border-brand-500 transition-colors"
+              className="card card-hover p-8 group"
             >
-              <div className="text-xs text-gray-500 uppercase tracking-wide">{city.province}</div>
-              <h3 className="mt-1 text-xl font-semibold text-white">{city.name}</h3>
-              <p className="mt-2 text-sm text-gray-400">{city.tagline}</p>
-              <span className="mt-4 inline-block text-sm font-medium text-brand-300">
-                Visit this location →
-              </span>
+              <p className="eyebrow text-white/50">{city.province}</p>
+              <h3 className="mt-2 text-2xl font-semibold text-white tracking-tight">{city.name}</h3>
+              <p className="mt-3 text-[14px] text-white/60 leading-relaxed">{city.tagline}</p>
+              <p className="mt-5 link-chevron text-[14px]">Visit location</p>
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="bg-gradient-to-r from-brand-900 to-gray-900 border-y border-gray-800">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <h2 className="text-3xl font-bold text-white">Need a free quote?</h2>
-          <p className="mt-3 text-gray-300">Tell us what&apos;s broken — we&apos;ll text you a price within an hour.</p>
-          <Link href="/contact" className="mt-6 btn-primary inline-flex">
-            Get a quote
-          </Link>
+      {/* ===================== CTA ===================== */}
+      <section className="container-x py-24">
+        <div className="card panel-gradient text-center p-12 sm:p-20">
+          <p className="eyebrow">Free quote in under an hour</p>
+          <h2 className="mt-3 text-display-lg text-white tracking-tighter">
+            Phone broken?
+            <br />
+            <span className="text-white/55">Tell us. We&rsquo;ll fix it.</span>
+          </h2>
+          <p className="mt-5 text-[17px] text-white/65 max-w-xl mx-auto">
+            Text or call us with the device + issue and we&rsquo;ll send back a fixed price within an hour.
+          </p>
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
+            <Link href="/contact" className="btn-primary">Get a quote</Link>
+            <Link href="/services" className="btn-secondary">See pricing</Link>
+          </div>
         </div>
       </section>
     </div>

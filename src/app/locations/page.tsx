@@ -8,29 +8,30 @@ export const metadata = {
 
 export default function LocationsPage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <header className="max-w-2xl">
-        <h1 className="text-4xl font-bold text-white">Our locations</h1>
-        <p className="mt-3 text-gray-400">
-          Six cities across Eastern Canada. Each shop carries its own inventory of refurbished phones and parts —
-          tap a city to see what&apos;s in stock there.
+    <div className="container-x py-20">
+      <header className="text-center max-w-3xl mx-auto">
+        <p className="eyebrow">Find us</p>
+        <h1 className="mt-3 text-display-xl text-white tracking-tighter">
+          Six shops. <span className="text-white/55">One promise.</span>
+        </h1>
+        <p className="mt-5 text-[18px] text-white/65 leading-relaxed">
+          Each location carries its own inventory of refurbished phones and parts.
+          Tap a city to see what&rsquo;s in stock there.
         </p>
       </header>
 
-      <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {CITIES.map((c) => (
           <Link
             key={c.slug}
             href={`/locations/${c.slug}`}
-            className="card p-6 hover:border-brand-500 transition-colors"
+            className="card card-hover p-8"
           >
-            <span className="text-xs uppercase tracking-wide text-gray-500">{c.province}</span>
-            <h2 className="mt-1 text-2xl font-semibold text-white">{c.name}</h2>
-            <p className="mt-2 text-sm text-gray-300">{c.tagline}</p>
-            <p className="mt-3 text-xs text-gray-500">{c.hours}</p>
-            <span className="mt-4 inline-block text-sm font-medium text-brand-300">
-              View location →
-            </span>
+            <p className="eyebrow text-white/50">{c.province}</p>
+            <h2 className="mt-2 text-[28px] font-semibold text-white tracking-tighter">{c.name}</h2>
+            <p className="mt-3 text-[14px] text-white/65 leading-relaxed">{c.tagline}</p>
+            <p className="mt-4 text-[12px] text-white/45">{c.hours}</p>
+            <p className="mt-6 link-chevron text-[14px]">View location</p>
           </Link>
         ))}
       </div>

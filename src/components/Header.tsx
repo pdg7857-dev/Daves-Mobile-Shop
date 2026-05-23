@@ -2,50 +2,44 @@ import Link from "next/link";
 import CartIcon from "./CartIcon";
 
 const NAV = [
-  { href: "/services", label: "Services" },
-  { href: "/inventory", label: "Phones in Stock" },
+  { href: "/services", label: "Repair" },
+  { href: "/inventory", label: "Shop" },
   { href: "/parts", label: "Parts" },
-  { href: "/anatomy", label: "How iPhones Work" },
+  { href: "/anatomy", label: "How it works" },
   { href: "/locations", label: "Locations" },
-  { href: "/orders", label: "Track Order" },
-  { href: "/contact", label: "Contact" }
+  { href: "/orders", label: "Track" },
+  { href: "/contact", label: "Support" }
 ];
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-30 bg-gray-950/85 backdrop-blur border-b border-gray-800">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl">📱</span>
-          <span className="font-bold text-lg bg-gradient-to-r from-brand-400 to-brand-300 bg-clip-text text-transparent">Dave&apos;s Mobile Shop</span>
+    <header className="sticky top-0 z-30 glass">
+      <div className="mx-auto max-w-[1024px] px-6 sm:px-8 flex h-12 items-center justify-between">
+        <Link href="/" className="text-[15px] font-medium tracking-tight text-white/90 hover:text-white transition-colors">
+          Dave&rsquo;s Mobile
         </Link>
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-8">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
+              className="text-[12px] font-normal text-white/80 hover:text-white transition-colors tracking-tight"
             >
               {item.label}
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-3">
           <CartIcon />
-          <a
-            href={`tel:${process.env.NEXT_PUBLIC_BUSINESS_PHONE || ""}`}
-            className="btn-primary hidden md:inline-flex ml-2"
-          >
-            Call us
-          </a>
         </div>
       </div>
-      <nav className="md:hidden border-t border-gray-800 px-2 flex gap-1 overflow-x-auto">
+      {/* Mobile sub-nav — Apple uses an off-canvas menu, but a horizontal scroll keeps it lightweight */}
+      <nav className="md:hidden border-t border-white/[0.06] px-3 flex gap-1 overflow-x-auto">
         {NAV.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className="text-sm font-medium text-gray-300 whitespace-nowrap py-3 px-2 hover:text-white active:bg-gray-800 rounded-md transition-colors"
+            className="text-[13px] font-normal text-white/80 whitespace-nowrap py-3 px-3 hover:text-white tracking-tight"
           >
             {item.label}
           </Link>

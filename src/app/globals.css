@@ -3,14 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --background: #0a0a0f;
-  --foreground: #e5e7eb;
-  --surface: #111827;
-  --surface-2: #1f2937;
-  --border: #1f2937;
-  --border-soft: #111827;
-  --text-muted: #9ca3af;
-  --text-subtle: #6b7280;
+  --background: #000000;
+  --foreground: #f5f5f7;
+  --surface: #1d1d1f;
+  --surface-2: #2a2a2d;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-soft: rgba(255, 255, 255, 0.04);
+  --text-primary: #f5f5f7;
+  --text-muted: #a1a1a6;
+  --text-subtle: #6e6e73;
+  --apple-blue: #0071e3;
+  --apple-blue-hover: #0077ed;
 }
 
 html, body {
@@ -21,66 +24,137 @@ html, body {
 html {
   -webkit-text-size-adjust: 100%;
   color-scheme: dark;
+  font-feature-settings: "ss01", "cv11";
+}
+
+body {
+  font-family: var(--font-sf), -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
 }
 
 ::selection {
-  background: #1d4ed8;
+  background: #0071e3;
   color: #ffffff;
 }
 
 @layer components {
+  /* ---------- Buttons (Apple pill style) ---------- */
   .btn {
-    @apply inline-flex items-center justify-center rounded-md px-4 py-2.5 text-sm font-medium transition-colors min-h-[40px] active:scale-95;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-medium tracking-tight transition-all min-h-[40px] active:scale-[0.97];
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-500 shadow-lg shadow-brand-900/30;
+    @apply btn text-white;
+    background-color: var(--apple-blue);
+  }
+  .btn-primary:hover {
+    background-color: var(--apple-blue-hover);
   }
   .btn-secondary {
-    @apply btn bg-gray-800 text-gray-100 border border-gray-700 hover:bg-gray-700 hover:border-gray-600;
+    @apply btn bg-white/10 text-white border border-white/15 backdrop-blur hover:bg-white/15;
+  }
+  .btn-ghost {
+    @apply btn text-white/90 hover:text-white hover:bg-white/5;
   }
   .btn-danger {
-    @apply btn bg-red-600 text-white hover:bg-red-500;
+    @apply btn bg-red-500 text-white hover:bg-red-400;
+  }
+  /* Apple's inline link with chevron */
+  .link-chevron {
+    @apply inline-flex items-center gap-0.5 text-[15px] font-normal hover:underline tracking-tight;
+    color: var(--apple-blue);
+  }
+  .link-chevron::after {
+    content: "›";
+    @apply ml-0.5 text-[18px] leading-none;
   }
 
+  /* ---------- Cards ---------- */
   .card {
-    @apply rounded-xl border border-gray-800 bg-gray-900 shadow-lg shadow-black/20;
+    @apply rounded-3xl bg-[#1d1d1f] border border-white/[0.06] overflow-hidden;
   }
   .card-elevated {
-    @apply rounded-xl border border-gray-700 bg-gray-900/80 backdrop-blur shadow-xl shadow-black/40;
+    @apply rounded-3xl bg-[#1d1d1f]/80 border border-white/[0.08] backdrop-blur-xl shadow-2xl shadow-black/40;
+  }
+  .card-hover {
+    @apply transition-all duration-300 hover:border-white/15 hover:-translate-y-0.5;
   }
 
+  /* ---------- Form controls ---------- */
   .input {
-    @apply w-full rounded-md border border-gray-700 bg-gray-900 text-gray-100 placeholder-gray-500 px-3 py-2.5 text-base sm:text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
+    @apply w-full rounded-xl border border-white/10 bg-white/[0.04] text-white placeholder-white/30 px-3.5 py-2.5 text-base sm:text-sm transition focus:outline-none;
+  }
+  .input:focus {
+    border-color: var(--apple-blue);
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.25);
   }
   .label {
-    @apply block text-sm font-medium text-gray-300 mb-1;
+    @apply block text-xs font-medium uppercase tracking-wider text-white/60 mb-1.5;
   }
   .table-cell {
-    @apply px-3 py-2 text-sm;
+    @apply px-3 py-2.5 text-sm;
   }
   .table-wrap {
     @apply overflow-x-auto;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Admin shell stays light — admin pages opt-in via .admin-shell */
+  /* ---------- Layout helpers ---------- */
+  .container-x {
+    @apply mx-auto max-w-[1280px] px-6 sm:px-8 lg:px-12;
+  }
+  .container-narrow {
+    @apply mx-auto max-w-[1024px] px-6 sm:px-8;
+  }
+  .eyebrow {
+    @apply text-eyebrow uppercase text-white/60;
+  }
+
+  /* ---------- Apple-style hero gradients ---------- */
+  .hero-radial {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 113, 227, 0.18), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 100%, rgba(124, 58, 237, 0.10), transparent 60%),
+      #000;
+  }
+  .panel-gradient {
+    background: linear-gradient(180deg, #0a0a0a 0%, #1d1d1f 100%);
+  }
+  .glass {
+    @apply bg-black/60 backdrop-blur-xl border-b border-white/[0.06];
+  }
+
+  /* ---------- Admin shell (kept light for utility) ---------- */
   .admin-shell {
-    background: #f9fafb;
-    color: #111827;
+    background: #f5f5f7;
+    color: #1d1d1f;
   }
   .admin-shell .card {
-    @apply bg-white border-gray-200 shadow-sm;
+    @apply bg-white border-black/[0.06] shadow-sm;
   }
   .admin-shell .card-elevated {
-    @apply bg-white border-gray-200 shadow-sm backdrop-blur-none;
+    @apply bg-white border-black/[0.06] shadow-sm backdrop-blur-none;
   }
   .admin-shell .input {
-    @apply bg-white border-gray-300 text-gray-900 placeholder-gray-400;
+    @apply bg-white border-black/15 placeholder-black/30;
+    color: #1d1d1f;
+  }
+  .admin-shell .input:focus {
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.25);
   }
   .admin-shell .label {
-    @apply text-gray-700;
+    @apply text-black/60;
   }
   .admin-shell .btn-secondary {
-    @apply bg-white text-brand-700 border-brand-200 hover:bg-brand-50;
+    @apply bg-black/[0.04] border-black/10 hover:bg-black/[0.08] backdrop-blur-none;
+    color: #1d1d1f;
+  }
+  .admin-shell .btn-ghost {
+    @apply hover:bg-black/[0.04];
+    color: rgba(29, 29, 31, 0.8);
+  }
+  .admin-shell .btn-ghost:hover {
+    color: #1d1d1f;
   }
 }
