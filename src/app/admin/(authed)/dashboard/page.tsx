@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { money, date } from "@/lib/format";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_COLOR, type OrderStatus } from "@/lib/orders";
+import DemoDataButton from "./DemoDataButton";
 
 export const dynamic = "force-dynamic";
 
@@ -43,9 +44,10 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-sm text-gray-600">Snapshot of orders, inventory and parts.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-start">
           <Link href="/admin/inventory/new" className="btn-primary">+ Add phone</Link>
           <Link href="/admin/parts/new" className="btn-secondary">+ Add part</Link>
+          <DemoDataButton />
         </div>
       </header>
 
