@@ -13,18 +13,18 @@ const NAV = [
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-30 bg-white border-b border-gray-200">
+    <header className="sticky top-0 z-30 bg-gray-950/85 backdrop-blur border-b border-gray-800">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-2xl">📱</span>
-          <span className="font-bold text-lg text-brand-700">Dave&apos;s Mobile Shop</span>
+          <span className="font-bold text-lg bg-gradient-to-r from-brand-400 to-brand-300 bg-clip-text text-transparent">Dave&apos;s Mobile Shop</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-gray-700 hover:text-brand-700"
+              className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
             >
               {item.label}
             </Link>
@@ -40,12 +40,12 @@ export default function Header() {
           </a>
         </div>
       </div>
-      <nav className="md:hidden border-t border-gray-100 px-2 flex gap-1 overflow-x-auto">
+      <nav className="md:hidden border-t border-gray-800 px-2 flex gap-1 overflow-x-auto">
         {NAV.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className="text-sm font-medium text-gray-700 whitespace-nowrap py-3 px-2 hover:text-brand-700 active:bg-gray-100 rounded-md"
+            className="text-sm font-medium text-gray-300 whitespace-nowrap py-3 px-2 hover:text-white active:bg-gray-800 rounded-md transition-colors"
           >
             {item.label}
           </Link>

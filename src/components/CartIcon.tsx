@@ -8,7 +8,7 @@ export default function CartIcon() {
   return (
     <Link
       href="/cart"
-      className="relative inline-flex items-center justify-center rounded-md w-11 h-11 text-gray-700 hover:bg-gray-100 active:scale-95 transition-transform"
+      className="relative inline-flex items-center justify-center rounded-md w-11 h-11 text-gray-300 hover:bg-gray-800 active:scale-95 transition-transform"
       aria-label={`Cart (${count} items)`}
     >
       <span className="text-xl">🛒</span>
