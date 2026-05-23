@@ -1,81 +1,86 @@
 import Link from "next/link";
-import { prisma } from "@/lib/db";
-import PartCard from "@/components/PartCard";
 import Reveal from "@/components/Reveal";
 
 export const metadata = {
-  title: "Phone Parts — Dave's Mobile Shop",
-  description: "Screens, batteries, charging ports, cameras and more for iPhone, Samsung, Pixel and more."
+  title: "Parts — Dave's Mobile Shop",
+  description: "Shop OEM and aftermarket parts by brand, model and category. Plus repair guides and the tools to do it yourself."
 };
 
-export const dynamic = "force-dynamic";
+const TILES = [
+  {
+    href: "/anatomy",
+    eyebrow: "Repair guides",
+    title: "How to fix your phone",
+    body: "Step-by-step iPhone teardowns. Learn what every part does and how it's swapped.",
+    accent: "from-amber-500/30 to-orange-500/10",
+    glow: "#f59e0b"
+  },
+  {
+    href: "/parts/apple",
+    eyebrow: "iPhone parts",
+    title: "Apple parts",
+    body: "Screens, batteries, cameras, charging ports for every iPhone from SE through 16 Pro Max.",
+    accent: "from-[color:var(--apple-blue)]/30 to-[color:var(--apple-blue)]/5",
+    glow: "#0071e3"
+  },
+  {
+    href: "/parts/android",
+    eyebrow: "Samsung & Pixel parts",
+    title: "Android parts",
+    body: "Galaxy S, Z Flip, Z Fold, A-series and every Pixel from 6 onwards.",
+    accent: "from-emerald-500/30 to-emerald-500/5",
+    glow: "#10b981"
+  },
+  {
+    href: "/parts/tools",
+    eyebrow: "Pro workbench",
+    title: "Tools & equipment",
+    body: "Heat mats, opening picks, suction cups, precision drivers — everything a tech needs.",
+    accent: "from-purple-500/30 to-purple-500/5",
+    glow: "#a855f7"
+  }
+] as const;
 
-type SearchParams = { category?: string };
-
-function chipClass(active: boolean) {
-  return [
-    "text-[13px] rounded-full px-3.5 py-1.5 font-medium capitalize transition-colors",
-    active
-      ? "bg-white text-black"
-      : "bg-white/[0.06] text-white/75 hover:bg-white/[0.1] hover:text-white"
-  ].join(" ");
-}
-
-export default async function PartsPage({
-  searchParams
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const sp = await searchParams;
-  const where = sp.category ? { category: sp.category } : {};
-  const parts = await prisma.part.findMany({
-    where,
-    orderBy: [{ category: "asc" }, { name: "asc" }]
-  });
-
-  const categories = await prisma.part.findMany({
-    select: { category: true },
-    distinct: ["category"],
-    orderBy: { category: "asc" }
-  });
-
+export default function PartsHubPage() {
   return (
     <div className="container-x py-20">
       <header className="text-center max-w-3xl mx-auto">
-        <p className="eyebrow">Phone parts</p>
+        <p className="eyebrow">Parts</p>
         <h1 className="mt-3 text-display-xl text-white tracking-tighter">
-          Genuine. Tested. <span className="text-white/55">In stock.</span>
+          What are you fixing?
         </h1>
         <p className="mt-5 text-[18px] text-white/65 leading-relaxed">
-          OEM and aftermarket parts for technicians and DIY repairs.
-          Wholesale pricing on bulk orders — just ask.
+          Pick a path — by repair guide, by brand, or grab the tools to do it yourself.
         </p>
       </header>
 
-      <div className="mt-14 flex flex-wrap justify-center gap-2">
-        <Link href="/parts" className={chipClass(!sp.category)}>All categories</Link>
-        {categories.map((c) => (
-          <Link
-            key={c.category}
-            href={`/parts?category=${encodeURIComponent(c.category)}`}
-            className={chipClass(sp.category === c.category)}
-          >
-            {c.category.replace("-", " ")}
-          </Link>
+      <div className="mt-14 grid gap-3 sm:grid-cols-2">
+        {TILES.map((tile, i) => (
+          <Reveal key={tile.href} delay={i * 80}>
+            <Link
+              href={tile.href}
+              className={`card card-hover relative isolate min-h-[300px] sm:min-h-[340px] flex flex-col p-10 overflow-hidden bg-gradient-to-br ${tile.accent} block group`}
+            >
+              <div className="relative z-10 flex-1 flex flex-col">
+                <p className="eyebrow text-white/70">{tile.eyebrow}</p>
+                <h2 className="mt-3 text-display-md text-white tracking-tighter">{tile.title}</h2>
+                <p className="mt-3 text-[15px] text-white/70 leading-relaxed max-w-md">{tile.body}</p>
+                <p className="mt-auto pt-6 link-chevron text-[14px]">Browse</p>
+              </div>
+              <div
+                className="pointer-events-none absolute -right-16 -bottom-20 h-[320px] w-[320px] rounded-full opacity-30 blur-3xl transition-opacity duration-500 group-hover:opacity-60"
+                style={{ background: `radial-gradient(circle, ${tile.glow} 0%, transparent 65%)` }}
+              />
+            </Link>
+          </Reveal>
         ))}
       </div>
 
-      {parts.length === 0 ? (
-        <p className="mt-16 text-center text-white/55">No parts in this category right now.</p>
-      ) : (
-        <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {parts.map((p, i) => (
-            <Reveal key={p.id} delay={(i % 4) * 70}>
-              <PartCard part={p} />
-            </Reveal>
-          ))}
-        </div>
-      )}
+      <div className="mt-12 text-center">
+        <Link href="/parts/all" className="link-chevron text-[14px]">
+          Or browse the full catalog
+        </Link>
+      </div>
     </div>
   );
 }

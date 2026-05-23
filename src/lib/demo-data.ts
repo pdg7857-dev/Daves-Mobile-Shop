@@ -108,7 +108,21 @@ export const DEMO_PARTS: DemoPart[] = [
   { name: "USB-C 35W Dual-Port Power Adapter", category: "accessory", compatibleWith: "All USB-C devices", brand: "Aftermarket", price: 34.99, stock: 30 },
   { name: "Premium Tempered Glass — iPhone 16 Pro", category: "accessory", compatibleWith: "iPhone 16 Pro", brand: "Aftermarket", price: 14.99, stock: 80 },
   { name: "Premium Tempered Glass — Galaxy S24 Ultra", category: "accessory", compatibleWith: "Galaxy S24 Ultra", brand: "Aftermarket", price: 14.99, stock: 60 },
-  { name: "Leather MagSafe Wallet", category: "accessory", compatibleWith: "iPhone 12 and newer", brand: "Aftermarket", price: 39.99, stock: 25 }
+  { name: "Leather MagSafe Wallet", category: "accessory", compatibleWith: "iPhone 12 and newer", brand: "Aftermarket", price: 39.99, stock: 25 },
+
+  // Tools & equipment
+  { name: "Pro Heat Mat (W/ Temperature Control)", category: "tool", compatibleWith: "Universal", brand: "iFixit-style", price: 89.99, stock: 12, description: "Even heat distribution. Adjustable 60-110°C." },
+  { name: "Suction Cup with Handle", category: "tool", compatibleWith: "Universal", brand: "OEM-style", price: 6.99, stock: 50 },
+  { name: "Plastic Opening Pick Set (100 pcs)", category: "tool", compatibleWith: "Universal", brand: "OEM-style", price: 12.99, stock: 40 },
+  { name: "Spudger Set (5 pcs)", category: "tool", compatibleWith: "Universal", brand: "OEM-style", price: 14.99, stock: 35 },
+  { name: "Precision Screwdriver Kit (115-in-1)", category: "tool", compatibleWith: "Universal", brand: "OEM-style", price: 49.99, stock: 22, description: "Pentalobe, tri-point, Torx and Phillips bits. Magnetic." },
+  { name: "Tri-Point Y000 Screwdriver", category: "tool", compatibleWith: "iPhone 7 and newer", brand: "OEM-style", price: 9.99, stock: 60 },
+  { name: "Pentalobe P2 Screwdriver", category: "tool", compatibleWith: "All iPhones", brand: "OEM-style", price: 8.99, stock: 65 },
+  { name: "Anti-Static Wrist Strap", category: "equipment", compatibleWith: "Universal", brand: "OEM-style", price: 7.99, stock: 80 },
+  { name: "ESD Magnetic Project Mat", category: "equipment", compatibleWith: "Universal", brand: "OEM-style", price: 34.99, stock: 18, description: "Numbered grid + magnetic so screws don't roll away." },
+  { name: "UV Curing Lamp (10W)", category: "equipment", compatibleWith: "Back glass / loca repair", brand: "OEM-style", price: 39.99, stock: 14 },
+  { name: "Hot Air Rework Station", category: "equipment", compatibleWith: "Board-level repair", brand: "OEM-style", price: 149.99, stock: 6, description: "Variable temp + airflow for soldering and component removal." },
+  { name: "Microscope (7-45x, Stand-Mounted)", category: "equipment", compatibleWith: "Board-level repair", brand: "OEM-style", price: 229.99, stock: 4 }
 ];
 
 export type DemoResult = {
