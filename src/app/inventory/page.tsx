@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import PhoneCard from "@/components/PhoneCard";
 import { CITIES } from "@/lib/cities";
 import Link from "next/link";
+import Reveal from "@/components/Reveal";
 
 export const metadata = {
   title: "Phones in Stock — Dave's Mobile Shop",
@@ -83,8 +84,10 @@ export default async function InventoryPage({
         </div>
       ) : (
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {phones.map((p) => (
-            <PhoneCard key={p.id} phone={p} />
+          {phones.map((p, i) => (
+            <Reveal key={p.id} delay={(i % 4) * 70}>
+              <PhoneCard phone={p} />
+            </Reveal>
           ))}
         </div>
       )}

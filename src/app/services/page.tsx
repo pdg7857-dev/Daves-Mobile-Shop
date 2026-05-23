@@ -1,5 +1,6 @@
 import { SERVICES } from "@/lib/services";
 import ServiceCard from "@/components/ServiceCard";
+import Reveal from "@/components/Reveal";
 
 export const metadata = {
   title: "Repair Services — Dave's Mobile Shop",
@@ -22,8 +23,10 @@ export default function ServicesPage() {
       </header>
 
       <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {SERVICES.map((s) => (
-          <ServiceCard key={s.slug} service={s} />
+        {SERVICES.map((s, i) => (
+          <Reveal key={s.slug} delay={(i % 3) * 80}>
+            <ServiceCard service={s} />
+          </Reveal>
         ))}
       </div>
 

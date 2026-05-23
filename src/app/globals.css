@@ -39,6 +39,17 @@ body {
   color: #ffffff;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer components {
   /* ---------- Buttons (Apple pill style) ---------- */
   .btn {
@@ -78,7 +89,7 @@ body {
     @apply rounded-3xl bg-[#1d1d1f]/80 border border-white/[0.08] backdrop-blur-xl shadow-2xl shadow-black/40;
   }
   .card-hover {
-    @apply transition-all duration-300 hover:border-white/15 hover:-translate-y-0.5;
+    @apply transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.2,0.65,0.3,1)] hover:border-white/15 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40;
   }
 
   /* ---------- Form controls ---------- */

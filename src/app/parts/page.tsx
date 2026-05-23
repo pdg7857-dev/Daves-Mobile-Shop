@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import PartCard from "@/components/PartCard";
+import Reveal from "@/components/Reveal";
 
 export const metadata = {
   title: "Phone Parts — Dave's Mobile Shop",
@@ -68,8 +69,10 @@ export default async function PartsPage({
         <p className="mt-16 text-center text-white/55">No parts in this category right now.</p>
       ) : (
         <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {parts.map((p) => (
-            <PartCard key={p.id} part={p} />
+          {parts.map((p, i) => (
+            <Reveal key={p.id} delay={(i % 4) * 70}>
+              <PartCard part={p} />
+            </Reveal>
           ))}
         </div>
       )}
