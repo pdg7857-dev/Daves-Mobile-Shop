@@ -40,6 +40,7 @@ model Phone {
   soldTo        String?
   repairs       Repair[]
   orderItems    OrderItem[]
+  daveCarePlans DaveCarePlan[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -106,6 +107,7 @@ model Order {
   deliveredAt    DateTime?
   cancelledAt    DateTime?
   items          OrderItem[]
+  daveCarePlans  DaveCarePlan[]
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -139,7 +141,7 @@ model DiscountCode {
   id              Int       @id @default(autoincrement())
   code            String    @unique
   description     String?
-  discountType    String    // "percentage" or "fixed"
+  discountType    String
   discountValue   Float
   minOrderAmount  Float?
   maxUses         Int?
@@ -149,4 +151,30 @@ model DiscountCode {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   orders          Order[]
+}
+
+model DaveCarePlan {
+  id            Int       @id @default(autoincrement())
+  orderId       Int
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  phoneId       Int?
+  phone         Phone?    @relation(fields: [phoneId], references: [id])
+  customerEmail String
+  customerName  String
+  phoneLabel    String
+  planType      String
+  pricePaid     Float
+  startedAt     DateTime  @default(now())
+  expiresAt     DateTime?
+  status        String    @default("active")
+  batteryUsed   Boolean   @default(false)
+  cameraUsed    Boolean   @default(false)
+  screenUsed    Boolean   @default(false)
+  backGlassUsed Boolean   @default(false)
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([customerEmail])
+  @@index([status])
 }

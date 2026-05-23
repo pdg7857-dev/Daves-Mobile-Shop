@@ -8,6 +8,7 @@ const TABS = [
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/inventory", label: "Inventory" },
   { href: "/admin/parts", label: "Parts" },
+  { href: "/admin/dave-care", label: "Dave Care" },
   { href: "/admin/discounts", label: "Discounts" },
   { href: "/admin/suppliers", label: "Suppliers" },
   { href: "/admin/settings", label: "Settings" }
@@ -22,24 +23,12 @@ export default function AdminNav() {
           {TABS.map((tab) => {
             const active = pathname === tab.href || pathname.startsWith(tab.href + "/");
             return (
-              <Link
-                key={tab.href}
-                href={tab.href}
-                className={`px-4 py-3 text-sm font-medium border-b-2 -mb-px whitespace-nowrap ${
-                  active
-                    ? "border-brand-600 text-brand-700"
-                    : "border-transparent text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                {tab.label}
-              </Link>
+              <Link key={tab.href} href={tab.href} className={`px-4 py-3 text-sm font-medium border-b-2 -mb-px whitespace-nowrap ${active ? "border-brand-600 text-brand-700" : "border-transparent text-gray-600 hover:text-gray-900"}`}>{tab.label}</Link>
             );
           })}
         </div>
         <form action="/api/auth/logout" method="POST">
-          <button className="text-sm text-gray-600 hover:text-gray-900" type="submit">
-            Sign out
-          </button>
+          <button className="text-sm text-gray-600 hover:text-gray-900" type="submit">Sign out</button>
         </form>
       </div>
     </div>

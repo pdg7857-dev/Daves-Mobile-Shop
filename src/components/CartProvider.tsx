@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { DAVE_CARE_PRICES, type DaveCarePlanType } from "@/lib/dave-care";
 
 export type CartItem = {
   type: "phone" | "part";
@@ -10,6 +11,7 @@ export type CartItem = {
   price: number;
   quantity: number;
   maxQuantity?: number;
+  daveCarePlan?: DaveCarePlanType | null;
 };
 
 type CartContextValue = {
@@ -17,6 +19,7 @@ type CartContextValue = {
   add: (item: CartItem) => void;
   remove: (type: "phone" | "part", id: number) => void;
   setQty: (type: "phone" | "part", id: number, qty: number) => void;
+  setDaveCarePlan: (id: number, plan: DaveCarePlanType | null) => void;
   clear: () => void;
   subtotal: number;
   count: number;
@@ -24,7 +27,7 @@ type CartContextValue = {
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
-const STORAGE_KEY = "dms_cart_v1";
+const STORAGE_KEY = "dms_cart_v2";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -48,7 +51,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) => {
       const existing = prev.find((p) => p.type === item.type && p.id === item.id);
       if (existing) {
-        if (item.type === "phone") return prev; // a specific phone can only be ordered once
+        if (item.type === "phone") return prev;
         const max = item.maxQuantity ?? existing.maxQuantity ?? 999;
         return prev.map((p) =>
           p.type === item.type && p.id === item.id
@@ -75,13 +78,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const setDaveCarePlan = useCallback((id: number, plan: DaveCarePlanType | null) => {
+    setItems((prev) => prev.map((p) => (p.type === "phone" && p.id === id ? { ...p, daveCarePlan: plan } : p)));
+  }, []);
+
   const clear = useCallback(() => setItems([]), []);
 
-  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const subtotal = items.reduce((sum, i) => {
+    const base = i.price * i.quantity;
+    const addon = i.type === "phone" && i.daveCarePlan ? DAVE_CARE_PRICES[i.daveCarePlan] : 0;
+    return sum + base + addon;
+  }, 0);
   const count = items.reduce((n, i) => n + i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ items, add, remove, setQty, clear, subtotal, count, hydrated }}>
+    <CartContext.Provider value={{ items, add, remove, setQty, setDaveCarePlan, clear, subtotal, count, hydrated }}>
       {children}
     </CartContext.Provider>
   );
