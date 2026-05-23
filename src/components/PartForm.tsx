@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PhotoUpload from "@/components/PhotoUpload";
+import CompatibilityPicker from "@/components/CompatibilityPicker";
 
 type PartFields = {
   id?: number;
@@ -89,8 +90,10 @@ export default function PartForm({
             <input className="input" value={form.brand || ""} onChange={(e) => update("brand", e.target.value)} placeholder="OEM, Aftermarket…" />
           </div>
           <div className="sm:col-span-2">
-            <label className="label">Compatible with *</label>
-            <input className="input" required value={form.compatibleWith} onChange={(e) => update("compatibleWith", e.target.value)} placeholder="iPhone 14, iPhone 14 Plus" />
+            <CompatibilityPicker
+              value={form.compatibleWith}
+              onChange={(v) => update("compatibleWith", v)}
+            />
           </div>
           <div>
             <label className="label">Price (CAD) *</label>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CITIES } from "@/lib/cities";
 import PhotoUpload from "@/components/PhotoUpload";
+import DevicePicker from "@/components/DevicePicker";
 
 type Supplier = { id: number; name: string };
 
@@ -89,22 +90,21 @@ export default function PhoneForm({
       <fieldset className="card p-5">
         <legend className="px-2 text-sm font-semibold text-gray-700">Device</legend>
         <div className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <label className="label">Brand *</label>
-            <input className="input" required value={form.brand} onChange={(e) => update("brand", e.target.value)} placeholder="Apple, Samsung, Google…" />
-          </div>
-          <div>
-            <label className="label">Model *</label>
-            <input className="input" required value={form.model} onChange={(e) => update("model", e.target.value)} placeholder="iPhone 14 Pro" />
-          </div>
-          <div>
-            <label className="label">Storage</label>
-            <input className="input" value={form.storage || ""} onChange={(e) => update("storage", e.target.value)} placeholder="128GB" />
-          </div>
-          <div>
-            <label className="label">Color</label>
-            <input className="input" value={form.color || ""} onChange={(e) => update("color", e.target.value)} placeholder="Midnight" />
-          </div>
+          <DevicePicker
+            brand={form.brand}
+            model={form.model}
+            storage={form.storage || ""}
+            color={form.color || ""}
+            onChange={(next) =>
+              setForm((f) => ({
+                ...f,
+                brand: next.brand,
+                model: next.model,
+                storage: next.storage,
+                color: next.color
+              }))
+            }
+          />
           <div>
             <label className="label">Condition *</label>
             <select className="input" required value={form.condition} onChange={(e) => update("condition", e.target.value)}>
