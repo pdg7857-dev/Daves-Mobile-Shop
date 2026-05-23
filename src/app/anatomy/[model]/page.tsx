@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ANATOMY_MODELS, getAnatomyModel, partsByPosition } from "@/lib/iphone-anatomy";
+import { ANATOMY_MODELS, getAnatomyModel, partsByPosition, VARIANT_LABEL, VARIANT_BADGE_COLOR } from "@/lib/iphone-anatomy";
 
 export function generateStaticParams() {
   return ANATOMY_MODELS.map((m) => ({ model: m.slug }));
@@ -19,7 +19,8 @@ const POSITION_LABELS: Record<string, string> = {
   middle: "Center — battery",
   lower: "Lower section — Taptic Engine",
   bottom: "Bottom edge — charging port & speaker",
-  back: "Rear glass & wireless charging"
+  back: "Rear glass & wireless charging",
+  side: "Side buttons"
 };
 
 const DIFFICULTY_COLOR: Record<string, string> = {
@@ -33,17 +34,23 @@ export default async function AnatomyModelPage({ params }: { params: Promise<{ m
   const { model } = await params;
   const m = getAnatomyModel(model);
   if (!m) notFound();
+
   const grouped = partsByPosition(m.parts);
-  const orderedPositions = ["top", "upper", "middle", "lower", "bottom", "back"] as const;
+  const orderedPositions = ["top", "upper", "middle", "lower", "bottom", "side", "back"] as const;
 
   return (
     <div>
       <section className="bg-gradient-to-br from-brand-700 to-brand-900 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
           <Link href="/anatomy" className="text-sm text-brand-200 hover:text-white">← All models</Link>
-          <h1 className="mt-3 text-4xl md:text-5xl font-bold">Inside the {m.name}</h1>
+          <div className="mt-3 flex items-center gap-3 flex-wrap">
+            <h1 className="text-4xl md:text-5xl font-bold">Inside the {m.name}</h1>
+            {m.variant && (
+              <span className={`text-xs font-semibold uppercase tracking-wide rounded-full px-2.5 py-1 ${VARIANT_BADGE_COLOR[m.variant]}`}>{VARIANT_LABEL[m.variant]}</span>
+            )}
+          </div>
           <p className="mt-3 text-brand-100 max-w-3xl">{m.introBlurb}</p>
-          <p className="mt-1 text-xs text-brand-200 uppercase tracking-wide">{m.year} · {m.generation}</p>
+          <p className="mt-1 text-xs text-brand-200 uppercase tracking-wide">{m.year} · iPhone {m.generation}</p>
         </div>
       </section>
 
@@ -52,12 +59,18 @@ export default async function AnatomyModelPage({ params }: { params: Promise<{ m
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Diagram</h2>
           <div className="mt-3 mx-auto w-56 rounded-[2.5rem] border-[6px] border-gray-900 bg-gray-100 p-3 shadow-lg" aria-label={`${m.name} component layout`}>
             <div className="rounded-[1.75rem] bg-white overflow-hidden text-[10px] font-medium">
-              {orderedPositions.filter((p) => p !== "back").map((p, i) => (
-                <div key={p} className={`p-2 ${i % 2 === 0 ? "bg-gray-50" : "bg-white"} border-b border-gray-100 last:border-b-0`}>
-                  <div className="text-gray-500 uppercase tracking-wide text-[9px]">{p}</div>
-                  <ul className="mt-0.5 space-y-0.5">{grouped[p].map((part) => (<li key={part.key} className="text-gray-800">• {part.name}</li>))}</ul>
-                </div>
-              ))}
+              {orderedPositions.filter((p) => p !== "back").map((p, i) => {
+                const items = grouped[p];
+                if (items.length === 0) return null;
+                return (
+                  <div key={p} className={`p-2 ${i % 2 === 0 ? "bg-gray-50" : "bg-white"} border-b border-gray-100 last:border-b-0`}>
+                    <div className="text-gray-500 uppercase tracking-wide text-[9px]">{p}</div>
+                    <ul className="mt-0.5 space-y-0.5">
+                      {items.map((part) => (<li key={part.key} className="text-gray-800">• {part.name}</li>))}
+                    </ul>
+                  </div>
+                );
+              })}
             </div>
           </div>
           {grouped.back.length > 0 && (<div className="mt-3 text-xs text-gray-500 text-center">Rear glass: {grouped.back.map((p) => p.name).join(", ")}</div>)}
@@ -106,6 +119,30 @@ export default async function AnatomyModelPage({ params }: { params: Promise<{ m
           </div>
         </div>
       </section>
+
+      {(() => {
+        const siblings = ANATOMY_MODELS.filter((other) => other.generation === m.generation && other.slug !== m.slug);
+        if (siblings.length === 0) return null;
+        return (
+          <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-12">
+            <h2 className="text-xl font-bold text-gray-900">Other iPhone {m.generation} variants</h2>
+            <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {siblings.map((s) => (
+                <Link key={s.slug} href={`/anatomy/${s.slug}`} className="card p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <span className="text-3xl">📱</span>
+                    {s.variant && (
+                      <span className={`text-[10px] font-semibold uppercase tracking-wide rounded-full px-2 py-0.5 ${VARIANT_BADGE_COLOR[s.variant]}`}>{VARIANT_LABEL[s.variant]}</span>
+                    )}
+                  </div>
+                  <h3 className="mt-2 font-semibold text-gray-900">{s.name}</h3>
+                  <span className="mt-2 inline-block text-xs font-medium text-brand-700">Compare parts →</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
 
       <section className="bg-gray-900 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 text-center">
