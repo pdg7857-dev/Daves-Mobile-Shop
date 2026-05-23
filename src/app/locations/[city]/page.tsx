@@ -1,13 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { CITIES, getCity } from "@/lib/cities";
+import { getCity } from "@/lib/cities";
 import { SERVICES } from "@/lib/services";
 import { prisma } from "@/lib/db";
 import PhoneCard from "@/components/PhoneCard";
 
-export function generateStaticParams() {
-  return CITIES.map((c) => ({ city: c.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ city: string }> }) {
   const { city } = await params;
