@@ -53,6 +53,7 @@ export default async function EditPhonePage({
           purchasedFrom: phone.purchasedFrom,
           supplierId: phone.supplierId,
           notes: phone.notes,
+          repairNeeded: phone.repairNeeded,
           city: phone.city,
           imageUrl: phone.imageUrl
         }}

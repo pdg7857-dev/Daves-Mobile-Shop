@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { isAdmin } from "@/lib/auth";
+import { syncPhone } from "@/lib/sheets";
 
 export async function GET() {
   if (!(await isAdmin())) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -37,12 +38,18 @@ export async function POST(req: Request) {
     purchasedFrom: body.purchasedFrom ? String(body.purchasedFrom) : null,
     supplierId: body.supplierId ? Number(body.supplierId) : null,
     notes: body.notes ? String(body.notes) : null,
+    repairNeeded: body.repairNeeded ? String(body.repairNeeded) : null,
     city: body.city ? String(body.city) : null,
     imageUrl: body.imageUrl ? String(body.imageUrl) : null
   };
 
   try {
     const phone = await prisma.phone.create({ data });
+    const full = await prisma.phone.findUnique({
+      where: { id: phone.id },
+      include: { supplier: true, repairs: true }
+    });
+    if (full) await syncPhone(full);
     return NextResponse.json(phone, { status: 201 });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";

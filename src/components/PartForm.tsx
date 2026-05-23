@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import PhotoUpload from "@/components/PhotoUpload";
 
 type PartFields = {
   id?: number;
@@ -100,8 +101,11 @@ export default function PartForm({
             <input className="input" type="number" value={form.stock} onChange={(e) => update("stock", e.target.value)} />
           </div>
           <div className="sm:col-span-2">
-            <label className="label">Image URL</label>
-            <input className="input" value={form.imageUrl || ""} onChange={(e) => update("imageUrl", e.target.value)} />
+            <PhotoUpload
+              value={form.imageUrl || null}
+              onChange={(url) => update("imageUrl", url)}
+              label="Photo"
+            />
           </div>
           <div className="sm:col-span-2">
             <label className="label">Description</label>

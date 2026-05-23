@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CITIES } from "@/lib/cities";
+import PhotoUpload from "@/components/PhotoUpload";
 
 type Supplier = { id: number; name: string };
 
@@ -22,6 +23,7 @@ type PhoneFields = {
   purchasedFrom?: string | null;
   supplierId?: number | null;
   notes?: string | null;
+  repairNeeded?: string | null;
   city?: string | null;
   imageUrl?: string | null;
 };
@@ -132,9 +134,29 @@ export default function PhoneForm({
             <input className="input font-mono" value={form.serial || ""} onChange={(e) => update("serial", e.target.value)} />
           </div>
           <div className="sm:col-span-2">
-            <label className="label">Image URL</label>
-            <input className="input" value={form.imageUrl || ""} onChange={(e) => update("imageUrl", e.target.value)} placeholder="https://…" />
+            <PhotoUpload
+              value={form.imageUrl || null}
+              onChange={(url) => update("imageUrl", url)}
+              label="Photo"
+            />
           </div>
+        </div>
+      </fieldset>
+
+      <fieldset className="card p-5">
+        <legend className="px-2 text-sm font-semibold text-gray-700">Repairs needed</legend>
+        <div>
+          <label className="label">Repairs this phone needs before sale</label>
+          <textarea
+            className="input min-h-[70px]"
+            value={form.repairNeeded || ""}
+            onChange={(e) => update("repairNeeded", e.target.value)}
+            placeholder="e.g. New screen + battery, replace back glass"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Shows as a badge on the inventory list. Leave blank when no repairs are pending.
+            Log completed repairs below after fixing.
+          </p>
         </div>
       </fieldset>
 

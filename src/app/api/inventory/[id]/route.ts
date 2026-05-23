@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { isAdmin } from "@/lib/auth";
+import { syncPhone, markPhoneDeleted } from "@/lib/sheets";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -21,7 +22,10 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const body = await req.json();
 
   const data: Record<string, unknown> = {};
-  for (const k of ["brand", "model", "storage", "color", "condition", "imei", "serial", "status", "purchasedFrom", "notes", "city", "imageUrl", "soldTo"]) {
+  for (const k of [
+    "brand", "model", "storage", "color", "condition", "imei", "serial",
+    "status", "purchasedFrom", "notes", "repairNeeded", "city", "imageUrl", "soldTo"
+  ]) {
     if (k in body) data[k] = body[k] === "" ? null : body[k];
   }
   for (const k of ["purchasePrice", "askingPrice", "salePrice", "supplierId"]) {
@@ -37,6 +41,11 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
   try {
     const phone = await prisma.phone.update({ where: { id: Number(id) }, data });
+    const full = await prisma.phone.findUnique({
+      where: { id: phone.id },
+      include: { supplier: true, repairs: true }
+    });
+    if (full) await syncPhone(full);
     return NextResponse.json(phone);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
@@ -49,6 +58,7 @@ export async function DELETE(_req: Request, { params }: Ctx) {
   const { id } = await params;
   try {
     await prisma.phone.delete({ where: { id: Number(id) } });
+    await markPhoneDeleted(Number(id));
     return NextResponse.json({ ok: true });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Delete failed";
