@@ -47,7 +47,7 @@ export default async function InventoryPage({
           Pre-loved. <span className="text-white/55">Properly tested.</span>
         </h1>
         <p className="mt-5 text-[18px] text-white/65 leading-relaxed">
-          Every phone is inspected, cleaned and ships with a 30-day money-back guarantee and a 90-day warranty.
+          Every phone is inspected, cleaned and ships with a <strong className="text-white">180-day warranty</strong> and 30-day money-back guarantee.
           Inventory rotates fast — call ahead to hold one for pickup.
         </p>
       </header>

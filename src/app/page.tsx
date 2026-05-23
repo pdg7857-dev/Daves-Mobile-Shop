@@ -30,7 +30,7 @@ export default async function HomePage() {
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-[19px] leading-relaxed text-white/70 animate-fade-up [animation-delay:120ms]">
             Honest, same-day repair on every iPhone, Samsung and Pixel.
-            Quality refurbished devices, OEM parts, 90-day warranty —
+            Quality refurbished devices with a <strong className="text-white/90">180-day warranty</strong>, OEM parts,
             shipped Canada-wide.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 animate-fade-up [animation-delay:180ms]">
@@ -84,7 +84,7 @@ export default async function HomePage() {
                 </h2>
                 <p className="mt-4 text-[17px] text-white/70 max-w-md">
                   Every device inspected, cleaned and certified. iPhones, Samsungs,
-                  Pixels — with 30-day money-back, 90-day warranty.
+                  Pixels — with a 180-day warranty and 30-day money-back guarantee.
                 </p>
                 <p className="mt-7 link-chevron">Shop the lineup</p>
               </div>
@@ -98,9 +98,9 @@ export default async function HomePage() {
 
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {[
-            { eyebrow: "90-day", title: "Warranty", body: "On every repair we ship out the door." },
-            { eyebrow: "OEM", title: "Parts only", body: "Genuine parts wherever possible. Always disclosed." },
-            { eyebrow: "Free shipping", title: "Across Canada", body: "On orders over $200. Tracked, insured." }
+            { eyebrow: "180-day", title: "On every phone", body: "Full warranty on every refurbished device we ship." },
+            { eyebrow: "90-day", title: "On every repair", body: "Workmanship warranty across all our repair services." },
+            { eyebrow: "Free shipping", title: "Across Canada", body: "On orders over $200. Tracked, insured, no surprises." }
           ].map((stat, i) => (
             <Reveal key={stat.title} delay={i * 80}>
               <div className="card panel-gradient p-8 min-h-[200px] flex flex-col justify-between card-hover">

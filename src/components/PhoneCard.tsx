@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { money } from "@/lib/format";
+import { WARRANTY } from "@/lib/dave-care";
 
 type Props = {
   phone: {
@@ -21,7 +22,7 @@ export default function PhoneCard({ phone }: Props) {
       href={`/inventory/${phone.id}`}
       className="card card-hover group flex flex-col"
     >
-      <div className="aspect-[4/3] bg-gradient-to-br from-[#2a2a2d] to-[#1d1d1f] flex items-center justify-center overflow-hidden">
+      <div className="aspect-[4/3] bg-gradient-to-br from-[#2a2a2d] to-[#1d1d1f] flex items-center justify-center overflow-hidden relative">
         {phone.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -32,6 +33,9 @@ export default function PhoneCard({ phone }: Props) {
         ) : (
           <span className="text-7xl opacity-25">📱</span>
         )}
+        <span className="absolute top-3 right-3 text-[10px] font-semibold tracking-wider uppercase rounded-full bg-black/60 backdrop-blur-md text-white/90 px-2.5 py-1 border border-white/10">
+          {WARRANTY.phoneLabel}
+        </span>
       </div>
       <div className="p-6 flex-1 flex flex-col">
         <p className="eyebrow text-white/50">{phone.condition}</p>
