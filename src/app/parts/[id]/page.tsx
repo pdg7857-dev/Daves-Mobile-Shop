@@ -20,35 +20,35 @@ export default async function PartDetailPage({
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10">
-      <Link href="/parts" className="text-sm text-brand-700 hover:text-brand-900">
+      <Link href="/parts" className="text-sm text-brand-300 hover:text-brand-200">
         ← Back to parts
       </Link>
 
       <div className="mt-6 grid lg:grid-cols-2 gap-10">
-        <div className="aspect-square rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-[10rem]">
+        <div className="aspect-square rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-[10rem]">
           {part.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={part.imageUrl} alt={part.name} className="w-full h-full object-cover rounded-xl" />
           ) : (
-            <span>🔧</span>
+            <span className="opacity-70">🔧</span>
           )}
         </div>
         <div>
-          <span className="text-sm uppercase tracking-wide text-brand-600 font-semibold">
+          <span className="text-sm uppercase tracking-wide text-brand-400 font-semibold">
             {part.category.replace("-", " ")}
           </span>
-          <h1 className="mt-1 text-3xl font-bold text-gray-900">{part.name}</h1>
-          <p className="mt-2 text-sm text-gray-600">Compatible with: {part.compatibleWith}</p>
-          {part.brand && <p className="text-sm text-gray-600">Brand: {part.brand}</p>}
+          <h1 className="mt-1 text-3xl font-bold text-white">{part.name}</h1>
+          <p className="mt-2 text-sm text-gray-400">Compatible with: {part.compatibleWith}</p>
+          {part.brand && <p className="text-sm text-gray-400">Brand: {part.brand}</p>}
 
-          <div className="mt-6 text-4xl font-bold text-brand-700">{money(part.price)}</div>
+          <div className="mt-6 text-4xl font-bold text-brand-300">{money(part.price)}</div>
           <div className="mt-2">
             {inStock ? (
-              <span className="text-sm rounded-full bg-green-100 text-green-800 px-3 py-1">
+              <span className="text-sm rounded-full bg-green-900/40 text-green-300 border border-green-700/50 px-3 py-1">
                 {part.stock} in stock · ships Canada-wide
               </span>
             ) : (
-              <span className="text-sm rounded-full bg-red-100 text-red-800 px-3 py-1">
+              <span className="text-sm rounded-full bg-red-900/40 text-red-300 border border-red-700/50 px-3 py-1">
                 Out of stock — contact us for ETA
               </span>
             )}
@@ -74,8 +74,8 @@ export default async function PartDetailPage({
           </p>
 
           {part.description && (
-            <div className="mt-6 card p-4 bg-gray-50">
-              <p className="text-sm text-gray-700">{part.description}</p>
+            <div className="mt-6 card p-4 bg-gray-900/40">
+              <p className="text-sm text-gray-300">{part.description}</p>
             </div>
           )}
         </div>
