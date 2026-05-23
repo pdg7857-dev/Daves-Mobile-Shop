@@ -1,5 +1,3 @@
-import { randomBytes } from "node:crypto";
-
 export const ORDER_STATUSES = [
   "pending_payment",
   "paid",
@@ -33,9 +31,9 @@ export const ORDER_STATUS_COLOR: Record<OrderStatus, string> = {
 };
 
 export function generateOrderNumber(): string {
-  // 6 uppercase hex chars → ~16M combinations. Order # collisions are caught
-  // by the unique DB constraint and retried by the caller.
-  return `DMS-${randomBytes(3).toString("hex").toUpperCase()}`;
+  const bytes = new Uint8Array(3);
+  crypto.getRandomValues(bytes);
+  return `DMS-${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("").toUpperCase()}`;
 }
 
 export const CARRIERS = [
