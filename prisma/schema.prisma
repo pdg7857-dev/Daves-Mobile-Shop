@@ -33,6 +33,7 @@ model Phone {
   supplierId    Int?
   supplier      Supplier? @relation(fields: [supplierId], references: [id])
   notes         String?
+  repairNeeded  String?
   city          String?
   imageUrl      String?
   soldDate      DateTime?
