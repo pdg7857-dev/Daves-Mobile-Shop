@@ -5,7 +5,7 @@ export type AnatomyPart = {
   difficulty: "Easy" | "Medium" | "Hard" | "Expert";
   whatItDoes: string;
   howToFix: string;
-  partCategory: string; // matches Part.category in DB so we can deep-link to /parts?category=
+  partCategory: string;
 };
 
 export type AnatomyModel = {
@@ -18,7 +18,6 @@ export type AnatomyModel = {
   parts: AnatomyPart[];
 };
 
-// ----- Reusable part definitions -----
 const PARTS = {
   screen: {
     name: "Display assembly (OLED)",
@@ -181,7 +180,6 @@ function part(key: keyof typeof PARTS, position: AnatomyPart["position"]): Anato
   return { key, position, ...PARTS[key] };
 }
 
-// ----- Layout builders -----
 type Variant = "base" | "mini" | "plus" | "pro" | "pro-max" | "se";
 
 function modernLayout(variant: Variant, usesUsbC: boolean): AnatomyPart[] {
@@ -228,7 +226,6 @@ function withCameraControl(parts: AnatomyPart[]): AnatomyPart[] {
   return [...parts, part("cameraControl", "side")];
 }
 
-// ----- Models -----
 function model(opts: {
   slug: string;
   name: string;
@@ -242,56 +239,27 @@ function model(opts: {
 }
 
 export const ANATOMY_MODELS: AnatomyModel[] = [
-  // SE models
-  model({
-    slug: "iphone-se-2020",
-    name: "iPhone SE (2020)",
-    year: 2020,
-    generation: "SE",
-    variant: "se",
-    introBlurb: "Second-gen SE — iPhone 8 body with the A13 chip from the iPhone 11. Touch ID home button, single rear camera, easiest modern iPhone to repair.",
-    parts: seLayout()
-  }),
-  model({
-    slug: "iphone-se-2022",
-    name: "iPhone SE (2022)",
-    year: 2022,
-    generation: "SE",
-    variant: "se",
-    introBlurb: "Third-gen SE — same body as the 2020 model with the A15 chip and 5G. Internally near-identical, parts are largely cross-compatible.",
-    parts: seLayout()
-  }),
-
-  // 11 series
+  model({ slug: "iphone-se-2020", name: "iPhone SE (2020)", year: 2020, generation: "SE", variant: "se", introBlurb: "Second-gen SE — iPhone 8 body with the A13 chip from the iPhone 11. Touch ID home button, single rear camera, easiest modern iPhone to repair.", parts: seLayout() }),
+  model({ slug: "iphone-se-2022", name: "iPhone SE (2022)", year: 2022, generation: "SE", variant: "se", introBlurb: "Third-gen SE — same body as the 2020 model with the A15 chip and 5G. Internally near-identical, parts are largely cross-compatible.", parts: seLayout() }),
   model({ slug: "iphone-11", name: "iPhone 11", year: 2019, generation: "11 series", variant: "base", introBlurb: "Dual rear cameras (wide + ultra-wide), Liquid Retina HD LCD, A13 Bionic. One of the easiest modern iPhones to repair.", parts: modernLayout("base", false) }),
   model({ slug: "iphone-11-pro", name: "iPhone 11 Pro", year: 2019, generation: "11 series", variant: "pro", introBlurb: "First Pro-branded iPhone — triple-camera (wide + ultra-wide + 2× telephoto), Super Retina XDR OLED. No LiDAR yet on the 11 Pro.", parts: modernLayout("pro", false).filter(p => p.key !== "lidar") }),
   model({ slug: "iphone-11-pro-max", name: "iPhone 11 Pro Max", year: 2019, generation: "11 series", variant: "pro-max", introBlurb: "Larger 6.5\" OLED + same triple-camera system as the 11 Pro. Largest battery of the 11 series.", parts: modernLayout("pro-max", false).filter(p => p.key !== "lidar") }),
-
-  // 12 series
   model({ slug: "iphone-12-mini", name: "iPhone 12 mini", year: 2020, generation: "12 series", variant: "mini", introBlurb: "Compact 5.4\" OLED, MagSafe, dual rear cameras. The mini battery is small — most common upgrade.", parts: modernLayout("mini", false) }),
   model({ slug: "iphone-12", name: "iPhone 12", year: 2020, generation: "12 series", variant: "base", introBlurb: "First MagSafe iPhone with the redesigned flat-edge body. OLED Super Retina XDR + A14 Bionic.", parts: modernLayout("base", false) }),
   model({ slug: "iphone-12-pro", name: "iPhone 12 Pro", year: 2020, generation: "12 series", variant: "pro", introBlurb: "Triple rear camera (wide + ultra-wide + 2× telephoto) plus first iPhone with LiDAR. Stainless-steel frame.", parts: modernLayout("pro", false) }),
   model({ slug: "iphone-12-pro-max", name: "iPhone 12 Pro Max", year: 2020, generation: "12 series", variant: "pro-max", introBlurb: "Larger 6.7\" OLED, bigger sensor on the wide camera, 2.5× telephoto. Largest battery in the 12 series.", parts: modernLayout("pro-max", false) }),
-
-  // 13 series
   model({ slug: "iphone-13-mini", name: "iPhone 13 mini", year: 2021, generation: "13 series", variant: "mini", introBlurb: "Last mini Apple made. 5.4\" OLED, diagonal rear cameras, smaller notch. Still small enough for one-handed use.", parts: modernLayout("mini", false) }),
   model({ slug: "iphone-13", name: "iPhone 13", year: 2021, generation: "13 series", variant: "base", introBlurb: "Bigger battery vs iPhone 12, smaller notch, diagonal rear camera layout. Same easy construction as the 12.", parts: modernLayout("base", false) }),
   model({ slug: "iphone-13-pro", name: "iPhone 13 Pro", year: 2021, generation: "13 series", variant: "pro", introBlurb: "First iPhone with ProMotion 120Hz OLED. Triple rear camera + LiDAR. 3× telephoto.", parts: modernLayout("pro", false) }),
   model({ slug: "iphone-13-pro-max", name: "iPhone 13 Pro Max", year: 2021, generation: "13 series", variant: "pro-max", introBlurb: "ProMotion 6.7\" OLED, 3× telephoto, biggest battery of the 13 series. Same internals as 13 Pro otherwise.", parts: modernLayout("pro-max", false) }),
-
-  // 14 series
   model({ slug: "iphone-14", name: "iPhone 14", year: 2022, generation: "14 series", variant: "base", introBlurb: "First back-glass-removable design — screen and rear panel are independently serviceable. Massive win for repair time.", parts: modernLayout("base", false) }),
   model({ slug: "iphone-14-plus", name: "iPhone 14 Plus", year: 2022, generation: "14 series", variant: "plus", introBlurb: "First 'Plus' since the iPhone 8 Plus. 6.7\" OLED, big battery, non-Pro internals. Same dual-entry design as the regular 14.", parts: modernLayout("plus", false) }),
   model({ slug: "iphone-14-pro", name: "iPhone 14 Pro", year: 2022, generation: "14 series", variant: "pro", introBlurb: "Dynamic Island debuts. Always-on display, A16 Bionic, 48 MP wide camera, 3× telephoto, LiDAR.", parts: modernLayout("pro", false) }),
   model({ slug: "iphone-14-pro-max", name: "iPhone 14 Pro Max", year: 2022, generation: "14 series", variant: "pro-max", introBlurb: "Dynamic Island, always-on, 48 MP main, 3× telephoto. Largest battery in the 14 series.", parts: modernLayout("pro-max", false) }),
-
-  // 15 series
   model({ slug: "iphone-15", name: "iPhone 15", year: 2023, generation: "15 series", variant: "base", introBlurb: "USB-C debuts on iPhone. 48 MP wide camera trickled down from Pro. Dynamic Island now on the base model.", parts: modernLayout("base", true) }),
   model({ slug: "iphone-15-plus", name: "iPhone 15 Plus", year: 2023, generation: "15 series", variant: "plus", introBlurb: "6.7\" OLED, USB-C, 48 MP wide camera, large battery. Non-Pro internals.", parts: modernLayout("plus", true) }),
   model({ slug: "iphone-15-pro", name: "iPhone 15 Pro", year: 2023, generation: "15 series", variant: "pro", introBlurb: "Titanium frame, A17 Pro, USB-C with USB 3 speeds, 3× telephoto, LiDAR, customizable Action button.", parts: modernLayout("pro", true) }),
   model({ slug: "iphone-15-pro-max", name: "iPhone 15 Pro Max", year: 2023, generation: "15 series", variant: "pro-max", introBlurb: "Tetraprism 5× telephoto debuts (only on Pro Max). Titanium frame, USB 3, Action button.", parts: modernLayout("pro-max", true) }),
-
-  // 16 series
   model({ slug: "iphone-16", name: "iPhone 16", year: 2024, generation: "16 series", variant: "base", introBlurb: "Apple Intelligence-ready neural engine, vertical rear camera layout, Camera Control button on Pro. Same dual-entry repairable design.", parts: modernLayout("base", true) }),
   model({ slug: "iphone-16-plus", name: "iPhone 16 Plus", year: 2024, generation: "16 series", variant: "plus", introBlurb: "6.7\" OLED with Apple Intelligence. Large battery, vertical rear camera. Same internals as the 16 in a bigger chassis.", parts: modernLayout("plus", true) }),
   model({ slug: "iphone-16-pro", name: "iPhone 16 Pro", year: 2024, generation: "16 series", variant: "pro", introBlurb: "First iPhone with the Camera Control button. A18 Pro, 5× telephoto trickled down from Pro Max, electrical-debond battery adhesive.", parts: withCameraControl(modernLayout("pro", true)) }),
@@ -316,7 +284,6 @@ export function groupedByGeneration(): { generation: string; models: AnatomyMode
     if (!map.has(m.generation)) map.set(m.generation, []);
     map.get(m.generation)!.push(m);
   }
-  // SE first (entry-level), then 11 → 16 in order
   const sortKey = (g: string) => (g === "SE" ? "0" : g);
   return Array.from(map.entries())
     .sort(([a], [b]) => sortKey(a).localeCompare(sortKey(b)))
@@ -333,10 +300,10 @@ export const VARIANT_LABEL: Record<NonNullable<AnatomyModel["variant"]>, string>
 };
 
 export const VARIANT_BADGE_COLOR: Record<NonNullable<AnatomyModel["variant"]>, string> = {
-  base: "bg-gray-100 text-gray-700",
-  mini: "bg-emerald-100 text-emerald-800",
-  plus: "bg-blue-100 text-blue-800",
-  pro: "bg-purple-100 text-purple-800",
-  "pro-max": "bg-amber-100 text-amber-800",
-  se: "bg-pink-100 text-pink-800"
+  base: "bg-gray-800 text-gray-300 border border-gray-700",
+  mini: "bg-emerald-900/40 text-emerald-300 border border-emerald-700/50",
+  plus: "bg-blue-900/40 text-blue-300 border border-blue-700/50",
+  pro: "bg-purple-900/40 text-purple-300 border border-purple-700/50",
+  "pro-max": "bg-amber-900/40 text-amber-300 border border-amber-700/50",
+  se: "bg-pink-900/40 text-pink-300 border border-pink-700/50"
 };
