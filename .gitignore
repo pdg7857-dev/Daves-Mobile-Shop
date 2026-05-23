@@ -10,3 +10,5 @@ dist/
 *.log
 coverage/
 .vercel
+package-lock.json
+tsconfig.tsbuildinfo
