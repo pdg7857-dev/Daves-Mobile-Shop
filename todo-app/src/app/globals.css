@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body { background: #0b0d12; color: #e8ecf3; }
+
+.btn { @apply inline-flex items-center gap-2 rounded-md border border-line bg-muted px-3 py-1.5 text-sm text-ink hover:bg-line transition; }
+.btn-primary { @apply btn bg-accent text-bg border-accent hover:bg-accent/90; }
+.btn-danger { @apply btn border-danger/40 text-danger hover:bg-danger/10; }
+.input { @apply w-full rounded-md border border-line bg-muted px-3 py-2 text-sm text-ink outline-none focus:border-accent; }
+.label { @apply block text-xs uppercase tracking-wide text-sub mb-1; }
+.card { @apply rounded-lg border border-line bg-panel p-4; }
+.chip { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1; }
