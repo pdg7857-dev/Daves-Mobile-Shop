@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ChatBubble from "@/components/ChatBubble";
 import { CartProvider } from "@/components/CartProvider";
 
 const inter = Inter({
@@ -26,6 +27,13 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // Chat targets read from env so deploy can change them without a rebuild.
+  // Falls back to the regular business phone for WhatsApp when no dedicated
+  // number is set.
+  const whatsappPhone =
+    process.env.NEXT_PUBLIC_WHATSAPP_PHONE || process.env.NEXT_PUBLIC_BUSINESS_PHONE || "";
+  const messengerUsername = process.env.NEXT_PUBLIC_MESSENGER_USERNAME || "";
+
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen flex flex-col bg-black text-white antialiased">
@@ -33,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
+          <ChatBubble whatsappPhone={whatsappPhone} messengerUsername={messengerUsername} />
         </CartProvider>
       </body>
     </html>
