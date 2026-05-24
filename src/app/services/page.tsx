@@ -3,9 +3,14 @@ import ServiceCard from "@/components/ServiceCard";
 import Reveal from "@/components/Reveal";
 
 export const metadata = {
-  title: "Repair Services — Dave's Mobile Shop",
+  title: "Phone Repair Services — iPhone, Samsung, Pixel | Fixed Pricing",
   description:
-    "Full-service mobile phone repair: screen, battery, camera, housing, charging port, water damage, speakers, and more."
+    "Mail-in phone repair across Canada. Screen replacement, battery, camera, charging port, back glass, water damage. Fixed-price quotes, OEM parts, 90-day warranty.",
+  keywords: [
+    "iPhone screen repair Canada", "Samsung screen replacement", "Pixel screen repair",
+    "iPhone battery replacement", "phone water damage repair", "back glass replacement Canada",
+    "charging port repair", "camera repair Canada", "mail-in phone repair Canada"
+  ]
 };
 
 export default function ServicesPage() {

@@ -1,24 +1,27 @@
 import { prisma } from "@/lib/db";
 import PhoneCard from "@/components/PhoneCard";
-import { CITIES } from "@/lib/cities";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 
 export const metadata = {
-  title: "Phones in Stock — Dave's Mobile Shop",
-  description: "Refurbished iPhones, Samsungs and Pixels, fully tested and ready to go."
+  title: "Refurbished Phones Canada — iPhones, Samsung, Pixel | 180-Day Warranty",
+  description:
+    "Buy certified refurbished iPhones, Samsungs and Pixels with a 180-day warranty. Free Canada-wide shipping over $200. Every phone tested and cleaned.",
+  keywords: [
+    "refurbished iPhone Canada", "used iPhone Canada", "certified refurbished phones",
+    "buy used Samsung Canada", "refurbished Pixel Canada", "second hand iPhone",
+    "iPhone 15 Pro refurbished", "iPhone 16 refurbished Canada"
+  ]
 };
 
 export const dynamic = "force-dynamic";
 
-type SearchParams = { city?: string; brand?: string };
+type SearchParams = { brand?: string };
 
 function chipClass(active: boolean) {
   return [
     "text-[13px] rounded-full px-3.5 py-1.5 font-medium transition-colors",
-    active
-      ? "bg-white text-black"
-      : "bg-white/[0.06] text-white/75 hover:bg-white/[0.1] hover:text-white"
+    active ? "bg-white text-black" : "bg-white/[0.06] text-white/75 hover:bg-white/[0.1] hover:text-white"
   ].join(" ");
 }
 
@@ -28,16 +31,18 @@ export default async function InventoryPage({
   searchParams: Promise<SearchParams>;
 }) {
   const sp = await searchParams;
-  const where: { status: string; city?: string; brand?: string } = { status: "for_sale" };
-  if (sp.city) where.city = sp.city;
+  const where: { status: string; brand?: string } = { status: "for_sale" };
   if (sp.brand) where.brand = sp.brand;
 
-  const phones = await prisma.phone.findMany({
-    where,
-    orderBy: [{ createdAt: "desc" }]
-  });
+  const phones = await prisma.phone.findMany({ where, orderBy: [{ createdAt: "desc" }] });
 
-  const brands = [...new Set(phones.map((p) => p.brand))].sort();
+  // Brand list from ALL for-sale phones (so chips stay stable when one is selected)
+  const allBrands = await prisma.phone.findMany({
+    where: { status: "for_sale" },
+    select: { brand: true },
+    distinct: ["brand"],
+    orderBy: { brand: "asc" }
+  });
 
   return (
     <div className="container-x py-20">
@@ -48,30 +53,16 @@ export default async function InventoryPage({
         </h1>
         <p className="mt-5 text-[18px] text-white/65 leading-relaxed">
           Every phone is inspected, cleaned and ships with a <strong className="text-white">180-day warranty</strong> and 30-day money-back guarantee.
-          Inventory rotates fast — call ahead to hold one for pickup.
+          Free Canada-wide shipping on orders over $200.
         </p>
       </header>
 
-      <div className="mt-14 flex flex-wrap justify-center gap-2">
-        <Link href="/inventory" className={chipClass(!sp.city && !sp.brand)}>
-          All
-        </Link>
-        {CITIES.map((c) => (
-          <Link key={c.slug} href={`/inventory?city=${c.slug}`} className={chipClass(sp.city === c.slug)}>
-            {c.name}
-          </Link>
-        ))}
-      </div>
-
-      {brands.length > 1 && (
-        <div className="mt-3 flex flex-wrap justify-center gap-2">
-          {brands.map((b) => (
-            <Link
-              key={b}
-              href={`/inventory?brand=${encodeURIComponent(b)}${sp.city ? `&city=${sp.city}` : ""}`}
-              className={chipClass(sp.brand === b)}
-            >
-              {b}
+      {allBrands.length > 1 && (
+        <div className="mt-14 flex flex-wrap justify-center gap-2">
+          <Link href="/inventory" className={chipClass(!sp.brand)}>All brands</Link>
+          {allBrands.map((b) => (
+            <Link key={b.brand} href={`/inventory?brand=${encodeURIComponent(b.brand)}`} className={chipClass(sp.brand === b.brand)}>
+              {b.brand}
             </Link>
           ))}
         </div>

@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { isAdmin } from "@/lib/auth";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
+import { syncOrder, logOrderPaid, logOrderRefunded } from "@/lib/sheets";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -94,6 +95,22 @@ export async function PATCH(req: Request, { params }: Ctx) {
       }
       return tx.order.update({ where: { id: orderId }, data });
     });
+
+    // Sheets sync (best-effort). Always update the Orders row, and log
+    // finance entries for status transitions that move money.
+    try {
+      const full = await prisma.order.findUnique({
+        where: { id: orderId },
+        include: { items: { select: { name: true, quantity: true, unitPrice: true, itemType: true } } }
+      });
+      if (full) {
+        await syncOrder(full);
+        if (newStatus === "paid") await logOrderPaid(full);
+        if (newStatus === "refunded") await logOrderRefunded(full);
+      }
+    } catch (err) {
+      console.error("Sheets sync after order PATCH skipped:", err instanceof Error ? err.message : err);
+    }
 
     return NextResponse.json(updated);
   } catch (err) {

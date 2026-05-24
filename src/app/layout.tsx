@@ -14,10 +14,39 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Dave's Mobile Shop — Phone Repair & Refurbished Phones",
+  metadataBase: process.env.NEXT_PUBLIC_SITE_URL
+    ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
+    : undefined,
+  title: {
+    default: "Phone Repair Canada — Mail-in iPhone, Samsung & Pixel Fix | Dave's Mobile Shop",
+    template: "%s | Dave's Mobile Shop"
+  },
   description:
-    "Fast, honest mobile phone repair, quality refurbished phones and parts shipped Canada-wide. Serving the GTA, Montréal, Ottawa, Québec, Moncton and Halifax.",
-  keywords: ["phone repair", "iPhone repair", "Samsung repair", "refurbished phones", "phone parts Canada", "Toronto", "Montreal", "Ottawa", "Halifax", "Moncton", "Quebec"]
+    "Fast, honest mail-in phone repair across Canada. Refurbished iPhones, Samsungs and Pixels with a 180-day warranty. Open 7 days a week, 8 AM – 9 PM ET. Emergency repairs available.",
+  keywords: [
+    // Top-level
+    "phone repair Canada", "iPhone repair Canada", "Samsung repair Canada", "Pixel repair Canada",
+    "mail-in phone repair", "ship phone for repair", "phone repair near me",
+    // Service-level
+    "screen replacement", "battery replacement", "back glass replacement",
+    "charging port repair", "camera repair", "water damage repair",
+    // Refurb
+    "refurbished iPhone Canada", "used iPhone Canada", "certified refurbished phones",
+    "buy used phone Canada",
+    // City-level (top markets)
+    "phone repair Toronto", "phone repair Vancouver", "phone repair Montréal",
+    "phone repair Calgary", "phone repair Ottawa", "phone repair Edmonton",
+    "phone repair Halifax", "phone repair Winnipeg", "phone repair Quebec City"
+  ],
+  openGraph: {
+    type: "website",
+    siteName: "Dave's Mobile Shop",
+    locale: "en_CA",
+    title: "Phone Repair Canada — Mail-in iPhone & Samsung Fix",
+    description: "180-day warranty on refurbished phones. 90-day on every repair. Open 7 days a week."
+  },
+  robots: { index: true, follow: true },
+  alternates: { canonical: process.env.NEXT_PUBLIC_SITE_URL || "/" }
 };
 
 export const viewport: Viewport = {

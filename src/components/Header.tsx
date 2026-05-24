@@ -14,7 +14,16 @@ const NAV: Array<{ href: string; label: string; dropdown?: Array<{ href: string;
       { href: "/parts/tools", label: "Tools & Equipment", hint: "Everything a tech needs" }
     ]
   },
-  { href: "/orders", label: "Tracking & Support" }
+  {
+    href: "/orders",
+    label: "Tracking & Support",
+    dropdown: [
+      { href: "/orders", label: "Track an order", hint: "Look up an order by order number" },
+      { href: "/contact", label: "Contact us", hint: "Phone, email and chat" },
+      { href: "/blog", label: "Blog", hint: "Repair guides and announcements" },
+      { href: "/locations", label: "Service areas", hint: "Where we ship" }
+    ]
+  }
 ];
 
 export default function Header() {

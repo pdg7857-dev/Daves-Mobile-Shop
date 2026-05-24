@@ -179,3 +179,24 @@ model DaveCarePlan {
   @@index([customerEmail])
   @@index([status])
 }
+
+model BlogPost {
+  id          Int       @id @default(autoincrement())
+  slug        String    @unique
+  title       String
+  excerpt     String?
+  // Markdown body. Rendered server-side with a light markdown-to-HTML pass.
+  content     String
+  coverImage  String?
+  // SEO
+  metaTitle   String?
+  metaDesc    String?
+  keywords    String?   // comma-separated
+  // Lifecycle
+  publishedAt DateTime?
+  author      String?   @default("Dave's Mobile Shop")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([publishedAt])
+}

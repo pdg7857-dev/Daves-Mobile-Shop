@@ -2,8 +2,14 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 
 export const metadata = {
-  title: "Parts — Dave's Mobile Shop",
-  description: "Shop OEM and aftermarket parts by brand, model and category. Plus repair guides and the tools to do it yourself."
+  title: "Phone Parts Canada — OEM Screens, Batteries, Tools",
+  description:
+    "OEM iPhone, Samsung and Pixel replacement parts shipped across Canada. Screens, batteries, charging ports, cameras + every tool a tech needs.",
+  keywords: [
+    "iPhone parts Canada", "Samsung parts Canada", "Pixel parts Canada",
+    "OEM iPhone screen", "phone repair parts wholesale Canada",
+    "phone repair tools Canada", "screen replacement parts"
+  ]
 };
 
 const TILES = [

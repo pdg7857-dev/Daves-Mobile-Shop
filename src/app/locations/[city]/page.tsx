@@ -1,17 +1,29 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getCity } from "@/lib/cities";
+import { getCity, UNIVERSAL_HOURS, EMERGENCY_NOTE } from "@/lib/cities";
 import { SERVICES } from "@/lib/services";
 import { prisma } from "@/lib/db";
 import PhoneCard from "@/components/PhoneCard";
+import Reveal from "@/components/Reveal";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ city: string }> }) {
   const { city } = await params;
   const c = getCity(city);
-  if (!c) return { title: "Location not found" };
-  return { title: `${c.name} — Phone Repair & Refurbished Phones | Dave's Mobile Shop`, description: `${c.tagline} ${c.intro}` };
+  if (!c) return { title: "Service area not found" };
+  return {
+    title: `Phone Repair in ${c.name}, ${c.province} | Dave's Mobile Shop`,
+    description: `${c.tagline} ${c.intro} 180-day warranty. Open 7 days a week 8 AM – 9 PM ET. Emergency repairs available.`,
+    keywords: [
+      `phone repair ${c.name}`,
+      `iPhone repair ${c.name}`,
+      `Samsung repair ${c.name}`,
+      `mail-in phone repair ${c.province}`,
+      `refurbished phones ${c.name}`,
+      ...c.neighborhoods.map((n) => `phone repair ${n}`)
+    ]
+  };
 }
 
 export default async function CityPage({ params }: { params: Promise<{ city: string }> }) {
@@ -19,87 +31,179 @@ export default async function CityPage({ params }: { params: Promise<{ city: str
   const city = getCity(slug);
   if (!city) notFound();
 
-  const phones = await prisma.phone.findMany({ where: { status: "for_sale", city: slug }, orderBy: { createdAt: "desc" }, take: 8 });
+  const phones = await prisma.phone.findMany({
+    where: { status: "for_sale" },
+    orderBy: { createdAt: "desc" },
+    take: 8
+  });
 
   return (
     <div>
-      <section className="bg-gradient-to-br from-brand-700 to-brand-900 text-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-          <span className="text-sm uppercase tracking-wide text-brand-200">{city.province}</span>
-          <h1 className="mt-2 text-4xl md:text-5xl font-bold">{city.name}</h1>
-          <p className="mt-4 text-lg text-brand-100 max-w-3xl">{city.tagline}</p>
-          <p className="mt-2 text-brand-100 max-w-3xl">{city.intro}</p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/contact" className="btn bg-white text-brand-700 hover:bg-brand-50">Get a quote</Link>
-            <Link href={`/inventory?city=${city.slug}`} className="btn border border-white/30 text-white hover:bg-white/10">See phones at this location</Link>
+      <section className="hero-radial">
+        <div className="container-narrow text-center pt-20 pb-16">
+          <p className="eyebrow">{city.province} · Mail-in service</p>
+          <h1 className="mt-3 text-display-xl text-white tracking-tighter">{city.name}</h1>
+          <p className="mt-5 text-[18px] text-white/70 max-w-2xl mx-auto leading-relaxed">
+            {city.tagline}
+          </p>
+          <p className="mt-3 text-[15px] text-white/55 max-w-2xl mx-auto leading-relaxed">
+            {city.intro}
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
+            <Link href="/contact" className="link-chevron">Get a free quote</Link>
+            <Link href="/inventory" className="link-chevron">Shop refurbished phones</Link>
+            <Link href="/services" className="link-chevron">See repair pricing</Link>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-3 gap-6">
-        <div className="card p-6"><h3 className="font-semibold text-white">Hours</h3><p className="mt-2 text-sm text-gray-300">{city.hours}</p></div>
-        <div className="card p-6"><h3 className="font-semibold text-white">Turnaround</h3><p className="mt-2 text-sm text-gray-300">{city.turnaround}</p></div>
-        <div className="card p-6"><h3 className="font-semibold text-white">Coverage area</h3><p className="mt-2 text-sm text-gray-300">{city.neighborhoods.join(" · ")}</p></div>
+      <section className="container-x py-10">
+        <div className="grid sm:grid-cols-3 gap-3">
+          <Reveal>
+            <div className="card p-7 h-full">
+              <p className="eyebrow text-[color:var(--apple-blue)]">Hours</p>
+              <h3 className="mt-2 text-[20px] font-semibold text-white tracking-tight">{UNIVERSAL_HOURS}</h3>
+              <p className="mt-2 text-[14px] text-white/65">{EMERGENCY_NOTE}</p>
+            </div>
+          </Reveal>
+          <Reveal delay={80}>
+            <div className="card p-7 h-full">
+              <p className="eyebrow text-[color:var(--apple-blue)]">Turnaround</p>
+              <h3 className="mt-2 text-[20px] font-semibold text-white tracking-tight">24–48 hours</h3>
+              <p className="mt-2 text-[14px] text-white/65">{city.turnaround}</p>
+            </div>
+          </Reveal>
+          <Reveal delay={160}>
+            <div className="card p-7 h-full">
+              <p className="eyebrow text-[color:var(--apple-blue)]">Coverage</p>
+              <h3 className="mt-2 text-[20px] font-semibold text-white tracking-tight">{city.name} & nearby</h3>
+              <p className="mt-2 text-[14px] text-white/65 leading-relaxed">{city.neighborhoods.join(" · ")}</p>
+            </div>
+          </Reveal>
+        </div>
       </section>
 
       {phones.length > 0 && (
-        <section className="bg-gray-900/40 border-y border-gray-800">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-            <div className="flex items-end justify-between">
-              <h2 className="text-3xl font-bold text-white">In stock at {city.name}</h2>
-              <Link href={`/inventory?city=${city.slug}`} className="text-sm font-medium text-brand-300 hover:text-brand-200">See all →</Link>
-            </div>
-            <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">{phones.map((p) => (<PhoneCard key={p.id} phone={p} />))}</div>
+        <section className="container-x py-10">
+          <div className="text-center max-w-3xl mx-auto">
+            <p className="eyebrow">Ships to {city.name}</p>
+            <h2 className="mt-2 text-display-md text-white tracking-tighter">
+              Refurbished phones, free shipping.
+            </h2>
+          </div>
+          <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {phones.map((p, i) => (
+              <Reveal key={p.id} delay={(i % 4) * 60}>
+                <PhoneCard phone={p} />
+              </Reveal>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <Link href="/inventory" className="link-chevron">Browse all phones</Link>
           </div>
         </section>
       )}
 
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-3xl font-bold text-white">Services we offer here</h2>
-        <p className="mt-2 text-gray-400">All standard repairs are available at every location.</p>
-        <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <section className="container-x py-16">
+        <div className="text-center max-w-3xl mx-auto">
+          <p className="eyebrow">What we fix</p>
+          <h2 className="mt-2 text-display-md text-white tracking-tighter">
+            Every repair, fixed price.
+          </h2>
+        </div>
+        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {SERVICES.map((s) => (
-            <div key={s.slug} className="card p-5">
+            <div key={s.slug} className="card p-6">
               <div className="text-2xl">{s.icon}</div>
-              <h3 className="mt-2 font-semibold text-white">{s.name}</h3>
-              <p className="mt-1 text-sm text-gray-400">{s.short}</p>
-              <div className="mt-3 flex items-center justify-between text-sm">
-                <span className="font-semibold text-brand-300">From {s.startingPrice}</span>
-                <span className="text-gray-500">{s.turnaround}</span>
+              <h3 className="mt-2 font-semibold text-white tracking-tight">{s.name}</h3>
+              <p className="mt-1 text-[13px] text-white/55">{s.short}</p>
+              <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between text-[13px]">
+                <span className="font-semibold text-white">From {s.startingPrice}</span>
+                <span className="text-white/50">{s.turnaround}</span>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-3xl font-bold text-white">FAQ — {city.name}</h2>
-        <div className="mt-6 max-w-3xl space-y-3">
+      <section className="container-x py-10">
+        <div className="text-center max-w-3xl mx-auto">
+          <p className="eyebrow">Frequently asked</p>
+          <h2 className="mt-2 text-display-md text-white tracking-tighter">
+            Common questions from {city.name}.
+          </h2>
+        </div>
+        <div className="mt-10 max-w-3xl mx-auto space-y-3">
           {city.faqs.map((f, i) => (
-            <details key={i} className="card p-4 group">
+            <details key={i} className="card p-5 group">
               <summary className="cursor-pointer list-none flex items-center justify-between gap-3">
-                <span className="font-medium text-white">{f.q}</span>
-                <span className="text-brand-300 group-open:rotate-180 transition-transform" aria-hidden>▾</span>
+                <span className="font-medium text-white tracking-tight">{f.q}</span>
+                <span className="text-[color:var(--apple-blue)] group-open:rotate-180 transition-transform" aria-hidden>▾</span>
               </summary>
-              <p className="mt-3 text-sm text-gray-300">{f.a}</p>
+              <p className="mt-3 text-[14px] text-white/70 leading-relaxed">{f.a}</p>
             </details>
           ))}
         </div>
       </section>
 
-      <section className="bg-gradient-to-r from-brand-900 to-gray-900 border-y border-gray-800">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 text-center">
-          <h2 className="text-2xl font-bold text-white">Ready to fix your phone in {city.name}?</h2>
-          <p className="mt-2 text-gray-300">Walk in or text us a photo for a quote.</p>
-          <div className="mt-6 flex justify-center gap-3">
-            <a href={`tel:${process.env.NEXT_PUBLIC_BUSINESS_PHONE || ""}`} className="btn-primary">Call now</a>
-            <Link href="/contact" className="btn-secondary">Get a quote</Link>
+      <section className="container-x py-16">
+        <div className="card panel-gradient text-center p-12 sm:p-16">
+          <p className="eyebrow">Free quote in under an hour</p>
+          <h2 className="mt-3 text-display-md text-white tracking-tighter">
+            Phone broken in {city.name}?
+          </h2>
+          <p className="mt-4 text-[15px] text-white/65 max-w-xl mx-auto">
+            Message us a photo of the damage and we&rsquo;ll send back a fixed price.
+            We&rsquo;ll mail you a free prepaid shipping label same day.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link href="/contact" className="btn-primary">Get a quote</Link>
+            <Link href="/services" className="btn-secondary">See pricing</Link>
           </div>
         </div>
       </section>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "LocalBusiness", name: `Dave's Mobile Shop — ${city.name}`, description: city.intro, address: { "@type": "PostalAddress", streetAddress: city.streetAddress ?? undefined, addressLocality: city.name.replace(/\s*\(.*\)\s*/, ""), addressRegion: city.isoRegion, addressCountry: "CA" }, telephone: process.env.NEXT_PUBLIC_BUSINESS_PHONE || undefined, email: process.env.NEXT_PUBLIC_BUSINESS_EMAIL || undefined, areaServed: city.neighborhoods.map((n) => ({ "@type": "Place", name: n })), openingHours: city.hours, priceRange: "$$" }) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: city.faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            name: `Dave's Mobile Shop — ${city.name}`,
+            description: city.intro,
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: city.name.replace(/\s*\(.*\)\s*/, ""),
+              addressRegion: city.isoRegion,
+              addressCountry: "CA"
+            },
+            telephone: process.env.NEXT_PUBLIC_BUSINESS_PHONE || undefined,
+            email: process.env.NEXT_PUBLIC_BUSINESS_EMAIL || undefined,
+            areaServed: city.neighborhoods.map((n) => ({ "@type": "Place", name: n })),
+            openingHoursSpecification: {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+              opens: "08:00",
+              closes: "21:00"
+            },
+            priceRange: "$$"
+          })
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: city.faqs.map((f) => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a }
+            }))
+          })
+        }}
+      />
     </div>
   );
 }

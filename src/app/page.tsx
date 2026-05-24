@@ -165,18 +165,22 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ===================== LOCATIONS ===================== */}
+      {/* ===================== SERVICE AREAS ===================== */}
       <section className="container-x pt-20 pb-8">
         <Reveal>
           <div className="text-center max-w-3xl mx-auto">
-            <p className="eyebrow">Coast to coast (almost)</p>
+            <p className="eyebrow">Nationwide service</p>
             <h2 className="mt-3 text-display-lg text-white tracking-tighter">
-              Find a shop near you.
+              We ship to your city.
             </h2>
+            <p className="mt-5 text-[17px] text-white/65">
+              Mail-in repair and refurbished phone delivery, anywhere in Canada.
+              Open 7 days a week, 8 AM – 9 PM ET.
+            </p>
           </div>
         </Reveal>
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {CITIES.map((city, i) => (
+          {CITIES.slice(0, 6).map((city, i) => (
             <Reveal key={city.slug} delay={i * 60}>
               <Link
                 href={`/locations/${city.slug}`}
@@ -185,10 +189,13 @@ export default async function HomePage() {
                 <p className="eyebrow text-white/50">{city.province}</p>
                 <h3 className="mt-2 text-2xl font-semibold text-white tracking-tight">{city.name}</h3>
                 <p className="mt-3 text-[14px] text-white/60 leading-relaxed">{city.tagline}</p>
-                <p className="mt-5 link-chevron text-[14px]">Visit location</p>
+                <p className="mt-5 link-chevron text-[14px]">See {city.name}</p>
               </Link>
             </Reveal>
           ))}
+        </div>
+        <div className="mt-8 text-center">
+          <Link href="/locations" className="link-chevron">See all {CITIES.length} service areas</Link>
         </div>
       </section>
 
