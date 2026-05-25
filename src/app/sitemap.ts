@@ -1,20 +1,14 @@
 import type { MetadataRoute } from "next";
 import { CITIES } from "@/lib/cities";
 import { ANATOMY_MODELS } from "@/lib/iphone-anatomy";
-
-function baseUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
-  );
-}
+import { getSiteUrl } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = baseUrl();
+  const base = getSiteUrl();
   const now = new Date();
 
   const staticPaths = [
-    "", "/services", "/inventory", "/parts", "/locations", "/contact", "/anatomy", "/orders"
+    "", "/services", "/inventory", "/parts", "/locations", "/contact", "/anatomy", "/orders", "/blog"
   ];
 
   return [

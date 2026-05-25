@@ -1,11 +1,5 @@
 import type { MetadataRoute } from "next";
-
-function baseUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
-  );
-}
+import { getSiteUrl } from "@/lib/site-url";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -16,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin", "/admin/", "/api/", "/orders/"] // order URLs are private (require email)
       }
     ],
-    sitemap: `${baseUrl()}/sitemap.xml`
+    sitemap: `${getSiteUrl()}/sitemap.xml`
   };
 }

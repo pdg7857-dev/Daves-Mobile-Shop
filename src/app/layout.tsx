@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ChatBubble from "@/components/ChatBubble";
 import { CartProvider } from "@/components/CartProvider";
+import { getSiteUrlObject } from "@/lib/site-url";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,10 +14,10 @@ const inter = Inter({
   weight: ["400", "500", "600", "700"]
 });
 
+const SITE_URL = getSiteUrlObject();
+
 export const metadata: Metadata = {
-  metadataBase: process.env.NEXT_PUBLIC_SITE_URL
-    ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
-    : undefined,
+  metadataBase: SITE_URL,
   title: {
     default: "Phone Repair Canada — Mail-in iPhone, Samsung & Pixel Fix | Dave's Mobile Shop",
     template: "%s | Dave's Mobile Shop"
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
     description: "180-day warranty on refurbished phones. 90-day on every repair. Open 7 days a week."
   },
   robots: { index: true, follow: true },
-  alternates: { canonical: process.env.NEXT_PUBLIC_SITE_URL || "/" }
+  alternates: { canonical: SITE_URL?.toString() || "/" }
 };
 
 export const viewport: Viewport = {

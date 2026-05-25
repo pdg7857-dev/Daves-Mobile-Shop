@@ -9,6 +9,7 @@
 // from API routes.
 
 import { Resend } from "resend";
+import { getSiteUrl } from "@/lib/site-url";
 
 type LineItem = {
   name: string;
@@ -180,9 +181,7 @@ function button(href: string, label: string): string {
 }
 
 function siteUrl(path: string): string {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "";
-  if (!base) return path;
-  return `${base.replace(/\/$/, "")}${path}`;
+  return `${getSiteUrl()}${path}`;
 }
 
 // ---------- Templates ----------
