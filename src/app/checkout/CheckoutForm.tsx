@@ -30,6 +30,7 @@ export default function CheckoutForm({ shippingConfig }: { shippingConfig: Shipp
     postalCode: "",
     customerNotes: ""
   });
+  const [smsOptIn, setSmsOptIn] = useState(false);
   const [promoInput, setPromoInput] = useState("");
   const [discount, setDiscount] = useState<DiscountState | null>(null);
   const [promoError, setPromoError] = useState<string | null>(null);
@@ -100,6 +101,7 @@ export default function CheckoutForm({ shippingConfig }: { shippingConfig: Shipp
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         ...form,
+        smsOptIn: smsOptIn && !!form.customerPhone.trim(),
         discountCode: discount?.code,
         items: items.map((i) => ({
           type: i.type,
@@ -141,6 +143,24 @@ export default function CheckoutForm({ shippingConfig }: { shippingConfig: Shipp
             <div className="sm:col-span-2">
               <label className="label">Phone</label>
               <input className="input" type="tel" value={form.customerPhone} onChange={(e) => update("customerPhone", e.target.value)} placeholder="For shipping updates" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="flex items-start gap-3 cursor-pointer select-none p-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.05] transition-colors">
+                <input
+                  type="checkbox"
+                  checked={smsOptIn}
+                  onChange={(e) => setSmsOptIn(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-[color:var(--apple-blue)]"
+                  disabled={!form.customerPhone.trim()}
+                />
+                <div className="text-sm">
+                  <span className="text-white font-medium">Text me deals + shipping updates</span>
+                  <p className="mt-0.5 text-[12px] text-white/55 leading-snug">
+                    Occasional promos, restock alerts and order updates by SMS. ~1-4 messages/month. Reply STOP anytime to unsubscribe.
+                    {!form.customerPhone.trim() && <span className="block text-amber-300 mt-1">Add a phone number above first.</span>}
+                  </p>
+                </div>
+              </label>
             </div>
           </div>
         </fieldset>

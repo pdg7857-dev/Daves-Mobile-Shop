@@ -241,6 +241,110 @@ export async function sendOrderShipped(order: OrderForEmail) {
   });
 }
 
+// ---------- Dave Care drip campaign ----------
+// Four-touch sequence for buyers who skipped Dave Care at checkout.
+
+type DripCopy = { subject: string; preheader: string; heading: string; body: string };
+
+const DRIP_COPY: Record<1 | 2 | 3 | 4, (firstName: string) => DripCopy> = {
+  1: (fn) => ({
+    subject: `Loving your new phone, ${fn}?`,
+    preheader: "A quick thought on protecting it.",
+    heading: "Hope it&rsquo;s all you wanted.",
+    body: `Hi ${fn}, just checking in — how&rsquo;s your new phone working out? You skipped Dave Care at checkout, which is totally fine, but the most common breakage we see (cracked screen, dead battery) usually happens in the first 90 days. Dave Care still covers your device if you add it now.`
+  }),
+  2: (fn) => ({
+    subject: `${fn}, here&rsquo;s what we see most often`,
+    preheader: "The 4 things that break, and what they cost.",
+    heading: "What goes wrong, and what it costs.",
+    body: `From the last 12 months at our bench:<br><br>
+      &nbsp;&nbsp;• Cracked screen — <strong>$199–$329</strong><br>
+      &nbsp;&nbsp;• Dead battery — <strong>$59–$79</strong><br>
+      &nbsp;&nbsp;• Camera glass — <strong>$89–$149</strong><br>
+      &nbsp;&nbsp;• Back glass — <strong>$99–$159</strong><br><br>
+      Dave Care covers all four — one of each, every 12 months — for $97/yr. That&rsquo;s less than a single screen swap.`
+  }),
+  3: (fn) => ({
+    subject: `Add Dave Care for $97 — limited offer`,
+    preheader: "Last week to add coverage to this purchase.",
+    heading: "One-time offer.",
+    body: `Hi ${fn}, this is the last week we can add Dave Care to your original purchase at the new-buyer rate. After day 30, it&rsquo;s available but at the renewal rate. Hit the button below to add it to your account.`
+  }),
+  4: (fn) => ({
+    subject: `Last call: Dave Care closes tomorrow`,
+    preheader: "After tomorrow, coverage is only available at renewal pricing.",
+    heading: "Last day to add coverage.",
+    body: `${fn}, tomorrow is the last day you can add Dave Care to your original purchase. After this, you can still buy it, but you&rsquo;ll have to wait for the next renewal cycle. One click below adds it now.`
+  })
+};
+
+export async function sendDaveCareDrip(order: OrderForEmail, step: 1 | 2 | 3 | 4) {
+  const fn = order.customerName.split(" ")[0];
+  const copy = DRIP_COPY[step](fn);
+  const addUrl = siteUrl(`/orders/${encodeURIComponent(order.orderNumber)}?addDaveCare=1`);
+  const unsub = siteUrl(`/orders/${encodeURIComponent(order.orderNumber)}?unsubscribe=1`);
+  const body = `
+    <h1 style="margin:16px 0 8px 0;font-size:28px;line-height:1.2;letter-spacing:-0.02em;font-weight:600;color:#1d1d1f;text-align:center;">${copy.heading}</h1>
+    <p style="margin:16px 0;font-size:15px;line-height:1.6;color:#1d1d1f;">${copy.body}</p>
+    <div style="background:#f5f5f7;border-radius:12px;padding:20px;margin:24px 0;">
+      <p style="margin:0 0 4px 0;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:${BRAND_COLOR};">Dave Care annual</p>
+      <p style="margin:0 0 8px 0;font-size:24px;font-weight:600;color:#1d1d1f;">${money(97)}<span style="font-size:14px;color:#86868b;font-weight:400;"> / year</span></p>
+      <p style="margin:0;font-size:13px;line-height:1.5;color:#1d1d1f;">1 screen + 1 battery + 1 camera + 1 back-glass replacement, every 12 months. Covers <strong>this</strong> device only.</p>
+    </div>
+    ${button(addUrl, "Add Dave Care to my order")}
+    <p style="margin:24px 0 0 0;font-size:12px;line-height:1.5;color:#86868b;text-align:center;">
+      Not interested? <a href="${escapeHtml(unsub)}" style="color:#86868b;text-decoration:underline;">Unsubscribe from these reminders.</a>
+    </p>
+  `;
+  await send({
+    to: order.customerEmail,
+    subject: copy.subject,
+    html: emailShell({ preheader: copy.preheader, title: copy.subject, bodyHtml: body }),
+    text: `${copy.heading.replace(/&[a-z]+;/g, "'")}\n\nAdd Dave Care: ${addUrl}\n\nUnsubscribe: ${unsub}\n\n— ${BRAND}`
+  });
+}
+
+// ---------- Review prompt ----------
+
+export async function sendReviewPrompt(order: OrderForEmail, step: 1 | 2) {
+  const fn = order.customerName.split(" ")[0];
+  const phoneItem = order.items.find((i) => i.name); // first item, usually the phone
+  const phoneLabel = phoneItem?.name ?? "your new phone";
+  const reviewUrl = siteUrl(`/orders/${encodeURIComponent(order.orderNumber)}#review`);
+  const isNudge = step === 2;
+  const subject = isNudge
+    ? `${fn}, 30 seconds to leave a review?`
+    : `How&rsquo;s your new phone, ${fn}?`;
+  const preheader = isNudge
+    ? "Your honest take helps other buyers — and means the world to us."
+    : "Mind sharing a quick review + photo?";
+  const body = `
+    <h1 style="margin:16px 0 8px 0;font-size:28px;line-height:1.2;letter-spacing:-0.02em;font-weight:600;color:#1d1d1f;text-align:center;">
+      ${isNudge ? "A small ask." : "How&rsquo;s it going?"}
+    </h1>
+    <p style="margin:16px 0;font-size:15px;line-height:1.6;color:#1d1d1f;">
+      Hi ${escapeHtml(fn)}, your <strong>${escapeHtml(phoneLabel)}</strong> should be settled in by now.
+      ${isNudge
+        ? "I noticed you haven&rsquo;t left a review yet — totally understand, life is busy. But 30 seconds of your honest take genuinely helps other buyers decide, and it means a lot to a small shop like ours."
+        : "If you&rsquo;ve got 60 seconds, would you share a quick review — and maybe a photo of the new device? It helps other buyers see real-world condition, and it means a lot to a small shop like ours."}
+    </p>
+    <div style="background:#f5f5f7;border-radius:12px;padding:20px;margin:24px 0;text-align:center;">
+      <p style="margin:0 0 12px 0;font-size:14px;color:#1d1d1f;font-weight:500;">5-star reviews + photos work magic.</p>
+      <p style="margin:0;font-size:32px;letter-spacing:4px;color:#f59e0b;">★ ★ ★ ★ ★</p>
+    </div>
+    ${button(reviewUrl, isNudge ? "Leave a quick review" : "Write my review")}
+    <p style="margin:24px 0 0 0;font-size:13px;line-height:1.5;color:#86868b;text-align:center;">
+      ${isNudge ? "If now isn&rsquo;t the time, no worries — this is the last reminder." : "Honest reviews — good or bad — are most welcome. We grow from them."}
+    </p>
+  `;
+  await send({
+    to: order.customerEmail,
+    subject,
+    html: emailShell({ preheader, title: subject, bodyHtml: body }),
+    text: `Hi ${fn}, would you take 60 seconds to leave a review of your ${phoneLabel}?\n\n${reviewUrl}\n\n— ${BRAND}`
+  });
+}
+
 export async function sendOrderDelivered(order: OrderForEmail) {
   const orderUrl = siteUrl(`/orders/${encodeURIComponent(order.orderNumber)}`);
   const subject = `Your order ${order.orderNumber} has arrived 🎉`;

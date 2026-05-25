@@ -4,6 +4,9 @@ import { prisma } from "@/lib/db";
 import { money, date } from "@/lib/format";
 import { getCity } from "@/lib/cities";
 import PhonePurchaseFlow from "@/components/PhonePurchaseFlow";
+import RecommendedAccessories from "@/components/RecommendedAccessories";
+import ReviewList from "@/components/ReviewList";
+import ReviewForm from "@/components/ReviewForm";
 import { WARRANTY, DAVE_CARE_PRICES, annualSavings } from "@/lib/dave-care";
 
 export default async function PhoneDetailPage({
@@ -123,6 +126,23 @@ export default async function PhoneDetailPage({
               Or {money(DAVE_CARE_PRICES.monthly)}/mo. Choose at checkout.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* ===== Frequently bought together ===== */}
+      <RecommendedAccessories brand={phone.brand} />
+
+      {/* ===== Reviews ===== */}
+      <section className="mt-16">
+        <div className="text-center max-w-3xl mx-auto">
+          <p className="eyebrow">From the people who bought one</p>
+          <h2 className="mt-2 text-display-md text-white tracking-tighter">
+            Reviews.
+          </h2>
+        </div>
+        <div className="mt-10 max-w-3xl mx-auto">
+          <ReviewList phoneId={phone.id} />
+          <ReviewForm phoneId={phone.id} phoneLabel={`${phone.brand} ${phone.model}`} />
         </div>
       </section>
 

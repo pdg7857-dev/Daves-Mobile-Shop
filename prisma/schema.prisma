@@ -42,6 +42,7 @@ model Phone {
   repairs       Repair[]
   orderItems    OrderItem[]
   daveCarePlans DaveCarePlan[]
+  reviews       Review[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -107,8 +108,14 @@ model Order {
   shippedAt      DateTime?
   deliveredAt    DateTime?
   cancelledAt    DateTime?
+  // Marketing consent (CASL)
+  smsOptIn               Boolean   @default(false)
+  smsOptInAt             DateTime?
+  marketingUnsubscribedAt DateTime?
   items          OrderItem[]
   daveCarePlans  DaveCarePlan[]
+  reviews        Review[]
+  campaignSends  EmailCampaignSend[]
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -199,4 +206,40 @@ model BlogPost {
   updatedAt   DateTime  @updatedAt
 
   @@index([publishedAt])
+}
+
+model Review {
+  id            Int       @id @default(autoincrement())
+  orderId       Int?
+  order         Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  phoneId       Int?
+  phone         Phone?    @relation(fields: [phoneId], references: [id], onDelete: SetNull)
+  customerName  String
+  customerEmail String
+  rating        Int       // 1-5
+  title         String?
+  body          String
+  // Photo URLs uploaded via /api/reviews/upload (Vercel Blob)
+  photos        String[]  @default([])
+  // approved (default) | hidden by admin | flagged
+  status        String    @default("approved")
+  adminNotes    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([phoneId, status])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model EmailCampaignSend {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  campaign  String   // "dave_care_drip" | "review_prompt"
+  step      Int      // 1, 2, 3, 4 (drip) | 1, 2 (review)
+  sentAt    DateTime @default(now())
+
+  @@unique([orderId, campaign, step])
+  @@index([campaign, sentAt])
 }

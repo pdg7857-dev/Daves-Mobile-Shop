@@ -118,12 +118,15 @@ export async function POST(req: Request) {
       const customerName = String(body.customerName).trim();
       const customerEmail = String(body.customerEmail).trim().toLowerCase();
 
+      const phoneTrimmed = body.customerPhone ? String(body.customerPhone).trim() : null;
+      const smsOptIn = !!body.smsOptIn && !!phoneTrimmed;
+
       const order = await tx.order.create({
         data: {
           orderNumber,
           customerName,
           customerEmail,
-          customerPhone: body.customerPhone ? String(body.customerPhone).trim() : null,
+          customerPhone: phoneTrimmed,
           addressLine1: String(body.addressLine1).trim(),
           addressLine2: body.addressLine2 ? String(body.addressLine2).trim() : null,
           city: String(body.city).trim(),
@@ -138,6 +141,8 @@ export async function POST(req: Request) {
           shippingCost: totals.shippingCost,
           taxAmount: totals.taxAmount,
           total: totals.total,
+          smsOptIn,
+          smsOptInAt: smsOptIn ? new Date() : null,
           items: { create: lineItems }
         }
       });

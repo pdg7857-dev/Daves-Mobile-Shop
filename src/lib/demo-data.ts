@@ -110,6 +110,41 @@ export const DEMO_PARTS: DemoPart[] = [
   { name: "Premium Tempered Glass — Galaxy S24 Ultra", category: "accessory", compatibleWith: "Galaxy S24 Ultra", brand: "Aftermarket", price: 14.99, stock: 60 },
   { name: "Leather MagSafe Wallet", category: "accessory", compatibleWith: "iPhone 12 and newer", brand: "Aftermarket", price: 39.99, stock: 25 },
 
+  // Frequently-bought-together accessories
+  { name: "Apple 20W USB-C Power Adapter", category: "accessory", compatibleWith: "iPhone 12 and newer, all USB-C devices", brand: "Apple OEM", price: 24.99, stock: 100, description: "Official Apple charging block. Fast-charges iPhone to 50% in ~30 min." },
+  { name: "Apple 35W Dual USB-C Power Adapter", category: "accessory", compatibleWith: "iPhone 12 and newer, MacBook, iPad", brand: "Apple OEM", price: 65.00, stock: 40, description: "Two ports, fast-charges two devices at once." },
+  { name: "Apple USB-C to Lightning Cable (1m)", category: "accessory", compatibleWith: "iPhone 11–14 series", brand: "Apple OEM", price: 24.99, stock: 80 },
+  { name: "Apple USB-C to USB-C Cable (1m)", category: "accessory", compatibleWith: "iPhone 15+, all USB-C devices", brand: "Apple OEM", price: 24.99, stock: 80 },
+  { name: "Apple USB-C to USB-C Cable (2m)", category: "accessory", compatibleWith: "iPhone 15+, all USB-C devices", brand: "Apple OEM", price: 34.99, stock: 50 },
+  { name: "Apple MagSafe Charger (1m)", category: "accessory", compatibleWith: "iPhone 12 and newer", brand: "Apple OEM", price: 59.00, stock: 35, description: "Snaps magnetically, charges up to 15W." },
+  { name: "Apple AirPods Pro (2nd gen) USB-C", category: "accessory", compatibleWith: "All iPhones", brand: "Apple OEM", price: 329.00, stock: 12, description: "Active Noise Cancellation, Adaptive Audio, USB-C charging." },
+  { name: "Apple Watch USB-C Magnetic Charging Cable", category: "accessory", compatibleWith: "All Apple Watch models", brand: "Apple OEM", price: 35.00, stock: 30 },
+
+  // Universal accessories
+  { name: "Anker 65W GaN Wall Charger (3-Port)", category: "accessory", compatibleWith: "All USB-C and USB-A devices", brand: "Anker", price: 54.99, stock: 25, description: "Powerful enough for a MacBook + phone + tablet from one outlet." },
+  { name: "Anker PowerCore 20K Power Bank", category: "accessory", compatibleWith: "All USB-C and USB-A devices", brand: "Anker", price: 79.99, stock: 30, description: "Charges an iPhone 16 ~5 times on a single charge." },
+  { name: "Belkin BoostCharge 3-in-1 MagSafe Stand", category: "accessory", compatibleWith: "iPhone 12+, Apple Watch, AirPods", brand: "Belkin", price: 139.99, stock: 15, description: "Charges your iPhone, Watch and AirPods from one base." },
+  { name: "Mophie Snap+ Magnetic Wireless Powerstation", category: "accessory", compatibleWith: "iPhone 12+", brand: "Mophie", price: 89.99, stock: 18 },
+  { name: "Samsung 45W USB-C Travel Adapter", category: "accessory", compatibleWith: "Galaxy S22+, S23+, S24, S25 series", brand: "Samsung OEM", price: 49.99, stock: 35 },
+  { name: "Google Pixel 30W USB-C Charger", category: "accessory", compatibleWith: "Pixel 6 and newer", brand: "Google OEM", price: 35.99, stock: 25 },
+
+  // Cases — universal popular models
+  { name: "Apple iPhone 16 Pro Silicone Case with MagSafe", category: "accessory", compatibleWith: "iPhone 16 Pro", brand: "Apple OEM", price: 59.00, stock: 30 },
+  { name: "Apple iPhone 16 Pro Max Silicone Case with MagSafe", category: "accessory", compatibleWith: "iPhone 16 Pro Max", brand: "Apple OEM", price: 59.00, stock: 30 },
+  { name: "Apple iPhone 15 Pro Silicone Case with MagSafe", category: "accessory", compatibleWith: "iPhone 15 Pro", brand: "Apple OEM", price: 59.00, stock: 25 },
+  { name: "Spigen Tough Armor Case — iPhone 16 Pro", category: "accessory", compatibleWith: "iPhone 16 Pro", brand: "Spigen", price: 39.99, stock: 40, description: "Drop-tested to military spec. Built-in kickstand." },
+  { name: "Spigen Tough Armor Case — Galaxy S24 Ultra", category: "accessory", compatibleWith: "Galaxy S24 Ultra", brand: "Spigen", price: 39.99, stock: 30 },
+  { name: "OtterBox Defender Series — iPhone 15 Pro", category: "accessory", compatibleWith: "iPhone 15 Pro", brand: "OtterBox", price: 89.99, stock: 18 },
+
+  // Audio
+  { name: "Apple EarPods (USB-C)", category: "accessory", compatibleWith: "iPhone 15+, USB-C devices", brand: "Apple OEM", price: 25.00, stock: 45 },
+  { name: "Samsung Galaxy Buds3 Pro", category: "accessory", compatibleWith: "All Bluetooth devices", brand: "Samsung OEM", price: 329.99, stock: 10 },
+
+  // Misc
+  { name: "Apple AirTag (4-pack)", category: "accessory", compatibleWith: "iPhone 11 and newer", brand: "Apple OEM", price: 129.00, stock: 25, description: "Find your keys, wallet, bag. Works with Find My." },
+  { name: "Apple AirTag (single)", category: "accessory", compatibleWith: "iPhone 11 and newer", brand: "Apple OEM", price: 39.00, stock: 50 },
+  { name: "SanDisk 128GB iXpand Flash Drive (USB-C + Lightning)", category: "accessory", compatibleWith: "All iPhones", brand: "SanDisk", price: 59.99, stock: 20 },
+
   // Tools & equipment
   { name: "Pro Heat Mat (W/ Temperature Control)", category: "tool", compatibleWith: "Universal", brand: "iFixit-style", price: 89.99, stock: 12, description: "Even heat distribution. Adjustable 60-110°C." },
   { name: "Suction Cup with Handle", category: "tool", compatibleWith: "Universal", brand: "OEM-style", price: 6.99, stock: 50 },
