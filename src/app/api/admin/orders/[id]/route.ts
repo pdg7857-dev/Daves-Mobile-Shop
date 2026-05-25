@@ -5,6 +5,7 @@ import { isAdmin } from "@/lib/auth";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
 import { syncOrder, logOrderPaid, logOrderRefunded } from "@/lib/sheets";
 import { sendOrderShipped, sendOrderDelivered } from "@/lib/email";
+import { sendOrderShippedSms, sendOrderDeliveredSms } from "@/lib/sms";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -111,8 +112,14 @@ export async function PATCH(req: Request, { params }: Ctx) {
         if (newStatus === "refunded") await logOrderRefunded(full);
         // Only fire status emails on actual transitions (not on tracking-number
         // edits that happen post-ship).
-        if (newStatus === "shipped" && previousStatus !== "shipped") await sendOrderShipped(full);
-        if (newStatus === "delivered" && previousStatus !== "delivered") await sendOrderDelivered(full);
+        if (newStatus === "shipped" && previousStatus !== "shipped") {
+          await sendOrderShipped(full);
+          await sendOrderShippedSms(full);
+        }
+        if (newStatus === "delivered" && previousStatus !== "delivered") {
+          await sendOrderDelivered(full);
+          await sendOrderDeliveredSms(full);
+        }
       }
     } catch (err) {
       console.error("Post-PATCH notifications skipped:", err instanceof Error ? err.message : err);

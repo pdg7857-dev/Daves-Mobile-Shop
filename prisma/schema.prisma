@@ -243,3 +243,27 @@ model EmailCampaignSend {
   @@unique([orderId, campaign, step])
   @@index([campaign, sentAt])
 }
+
+model SmsLog {
+  id          Int       @id @default(autoincrement())
+  // Outbound or inbound
+  direction   String    // "out" | "in"
+  // E.164 format
+  toNumber    String?
+  fromNumber  String?
+  body        String
+  // Optional ties
+  orderId     Int?
+  // For broadcasts: groups all sends from one admin push
+  broadcastId String?
+  // Twilio's response: status (queued, sending, sent, delivered, failed), sid, error code
+  twilioSid   String?
+  status      String?
+  error       String?
+  campaign    String?   // "shipped" | "delivered" | "broadcast" | "stop_reply" | "help_reply" | "inbound"
+  sentAt      DateTime  @default(now())
+
+  @@index([toNumber])
+  @@index([broadcastId])
+  @@index([sentAt])
+}
