@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { DAVE_CARE_PRICES, type DaveCarePlanType } from "@/lib/dave-care";
+import { trackEvent } from "@/lib/analytics-client";
 
 export type CartItem = {
   type: "phone" | "part";
@@ -48,6 +49,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items, hydrated]);
 
   const add = useCallback((item: CartItem) => {
+    trackEvent("add_to_cart", {
+      type: item.type,
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      daveCarePlan: item.daveCarePlan ?? null
+    });
     setItems((prev) => {
       const existing = prev.find((p) => p.type === item.type && p.id === item.id);
       if (existing) {

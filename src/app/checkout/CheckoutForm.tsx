@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
@@ -8,6 +8,7 @@ import { money } from "@/lib/format";
 import { PROVINCES, calculateTotals, isValidPostalCode } from "@/lib/shipping";
 import type { ShippingConfig } from "@/lib/settings";
 import { DAVE_CARE_PRICES } from "@/lib/dave-care";
+import { trackEvent } from "@/lib/analytics-client";
 
 type DiscountState = {
   code: string;
@@ -42,6 +43,18 @@ export default function CheckoutForm({ shippingConfig }: { shippingConfig: Shipp
     () => calculateTotals(subtotal, form.province, shippingConfig, discount?.discountAmount ?? 0),
     [subtotal, form.province, shippingConfig, discount]
   );
+
+  // Fire begin_checkout once when the form mounts with items
+  useEffect(() => {
+    if (hydrated && items.length > 0) {
+      trackEvent("begin_checkout", {
+        itemCount: items.length,
+        subtotal,
+        items: items.map((i) => ({ type: i.type, id: i.id, name: i.name, price: i.price }))
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
 
   if (!hydrated) return <div className="mt-6 text-gray-500">Loading…</div>;
 
@@ -118,6 +131,12 @@ export default function CheckoutForm({ shippingConfig }: { shippingConfig: Shipp
       return;
     }
     const order = await res.json();
+    trackEvent("purchase", {
+      orderNumber: order.orderNumber,
+      total: order.total,
+      currency: "CAD",
+      items: items.map((i) => ({ type: i.type, id: i.id, name: i.name, price: i.price, quantity: i.quantity }))
+    });
     clear();
     router.push(`/orders/${order.orderNumber}?email=${encodeURIComponent(form.customerEmail)}&new=1`);
   }

@@ -26,10 +26,11 @@ export default async function AdminDaveCarePage({ searchParams }: { searchParams
 
   return (
     <div>
-      <header>
+      <header className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-2xl font-bold text-gray-900">Dave Care plans</h1>
-        <p className="text-sm text-gray-600">Active protection plans and claim history.</p>
+        <Link href="/admin/dave-care/retention" className="btn-secondary text-sm">Retention dashboard →</Link>
       </header>
+      <p className="text-sm text-gray-600 mt-1">Active protection plans and claim history.</p>
 
       <div className="mt-6 flex flex-wrap gap-2">
         <Link href="/admin/dave-care" className={`text-sm rounded-full px-3 py-1 border ${!sp.status ? "bg-brand-700 text-white border-brand-700" : "bg-white text-gray-700 border-gray-300"}`}>All ({plans.length})</Link>

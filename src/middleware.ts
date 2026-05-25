@@ -2,9 +2,12 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // Middleware runs on the Edge runtime, which doesn't expose `node:crypto`,
 // so the HMAC check here uses the Web Crypto API instead of `src/lib/auth.ts`.
-const COOKIE_NAME = "admin_session";
 
-async function verifyEdge(token: string | undefined): Promise<boolean> {
+const ADMIN_COOKIE = "admin_session";
+const VISITOR_COOKIE = "dms_vid";
+const VISITOR_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
+async function verifyAdminSession(token: string | undefined): Promise<boolean> {
   if (!token) return false;
   const [issued, sig] = token.split(".");
   if (!issued || !sig) return false;
@@ -30,21 +33,47 @@ async function verifyEdge(token: string | undefined): Promise<boolean> {
   return true;
 }
 
+function randomId(): string {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  // Only protect admin app routes — `/admin` itself is the login page (publicly accessible).
-  if (!pathname.startsWith("/admin/")) return NextResponse.next();
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  const valid = await verifyEdge(token);
-  if (!valid) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/admin";
-    url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+
+  // ---- Admin gate ----
+  if (pathname.startsWith("/admin/")) {
+    const token = req.cookies.get(ADMIN_COOKIE)?.value;
+    const valid = await verifyAdminSession(token);
+    if (!valid) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/admin";
+      url.searchParams.set("next", pathname);
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
   }
-  return NextResponse.next();
+
+  // ---- Analytics: stamp a visitor cookie + forward geo headers ----
+  // Don't track admin / api requests; let everything else through.
+  if (pathname.startsWith("/api/") || pathname.startsWith("/admin")) {
+    return NextResponse.next();
+  }
+
+  const res = NextResponse.next();
+  if (!req.cookies.get(VISITOR_COOKIE)) {
+    res.cookies.set(VISITOR_COOKIE, randomId(), {
+      maxAge: VISITOR_MAX_AGE,
+      httpOnly: false, // client-side tracker reads this
+      sameSite: "lax",
+      path: "/"
+    });
+  }
+  return res;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"]
+  // Match every page (HTML) but skip Next internals, static files, etc.
+  matcher: ["/((?!_next/|favicon|robots.txt|sitemap.xml|images/|icons/|.*\\..*).*)"]
 };

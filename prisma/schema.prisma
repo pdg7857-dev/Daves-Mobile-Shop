@@ -175,16 +175,45 @@ model DaveCarePlan {
   startedAt     DateTime  @default(now())
   expiresAt     DateTime?
   status        String    @default("active")
+  // Fast-path booleans: "has this benefit been used?" (one per category, per
+  // 12-month coverage period). Cheap to query; granular history lives in
+  // DaveCareClaim rows.
   batteryUsed   Boolean   @default(false)
   cameraUsed    Boolean   @default(false)
   screenUsed    Boolean   @default(false)
   backGlassUsed Boolean   @default(false)
+  claims        DaveCareClaim[]
   notes         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   @@index([customerEmail])
   @@index([status])
+  @@index([expiresAt])
+}
+
+model DaveCareClaim {
+  id          Int       @id @default(autoincrement())
+  planId      Int
+  plan        DaveCarePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  // battery | camera | screen | backGlass
+  claimType   String
+  // For screen claims: "OLED" | "LCD" — drives upgrade pricing
+  screenType  String?
+  // If the customer chose an upgrade (e.g. LCD covered but wanted OLED),
+  // record the out-of-pocket amount they paid.
+  upgradePaid Float?    @default(0)
+  // Internal cost we incurred (part + labor) — margin tracking
+  partCost    Float?
+  laborCost   Float?
+  description String?
+  performedBy String?
+  performedAt DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
+  @@index([planId])
+  @@index([claimType])
+  @@index([performedAt])
 }
 
 model BlogPost {
@@ -266,4 +295,41 @@ model SmsLog {
   @@index([toNumber])
   @@index([broadcastId])
   @@index([sentAt])
+}
+
+model PageView {
+  id          Int       @id @default(autoincrement())
+  path        String
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  country     String?   // ISO 2-letter (CA, US)
+  region      String?   // province / state code (ON, QC, CA)
+  city        String?
+  device      String?   // mobile | desktop | tablet
+  visitorId   String    // anonymous, cookie-set, persists across sessions
+  sessionId   String    // per-visit (30-min window)
+  createdAt   DateTime  @default(now())
+
+  @@index([createdAt])
+  @@index([path, createdAt])
+  @@index([visitorId])
+  @@index([sessionId])
+  @@index([country, createdAt])
+}
+
+model AnalyticsEvent {
+  id        Int      @id @default(autoincrement())
+  name      String   // view_product | add_to_cart | begin_checkout | purchase | view_dave_care
+  path      String?
+  visitorId String
+  sessionId String
+  // Stringified JSON: { productId?, value?, orderNumber?, plan?, etc }
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+  @@index([sessionId])
+  @@index([visitorId])
 }
