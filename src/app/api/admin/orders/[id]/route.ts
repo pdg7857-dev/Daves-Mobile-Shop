@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { isAdmin } from "@/lib/auth";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/orders";
 import { syncOrder, logOrderPaid, logOrderRefunded } from "@/lib/sheets";
+import { sendOrderShipped, sendOrderDelivered } from "@/lib/email";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -32,11 +33,13 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const newStatus = body.status as OrderStatus | undefined;
   if (newStatus && !ORDER_STATUSES.includes(newStatus)) return NextResponse.json({ error: "Invalid status" }, { status: 400 });
 
+  let previousStatus: OrderStatus | null = null;
   try {
     const updated = await prisma.$transaction(async (tx) => {
       const existing = await tx.order.findUnique({ where: { id: orderId }, include: { items: true } });
       if (!existing) throw new Error("Order not found");
       const prevStatus = existing.status as OrderStatus;
+      previousStatus = prevStatus;
 
       const data: Record<string, unknown> = {};
       const now = new Date();
@@ -96,8 +99,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
       return tx.order.update({ where: { id: orderId }, data });
     });
 
-    // Sheets sync (best-effort). Always update the Orders row, and log
-    // finance entries for status transitions that move money.
+    // Sheets sync + customer emails (best-effort, never blocks).
     try {
       const full = await prisma.order.findUnique({
         where: { id: orderId },
@@ -107,9 +109,13 @@ export async function PATCH(req: Request, { params }: Ctx) {
         await syncOrder(full);
         if (newStatus === "paid") await logOrderPaid(full);
         if (newStatus === "refunded") await logOrderRefunded(full);
+        // Only fire status emails on actual transitions (not on tracking-number
+        // edits that happen post-ship).
+        if (newStatus === "shipped" && previousStatus !== "shipped") await sendOrderShipped(full);
+        if (newStatus === "delivered" && previousStatus !== "delivered") await sendOrderDelivered(full);
       }
     } catch (err) {
-      console.error("Sheets sync after order PATCH skipped:", err instanceof Error ? err.message : err);
+      console.error("Post-PATCH notifications skipped:", err instanceof Error ? err.message : err);
     }
 
     return NextResponse.json(updated);

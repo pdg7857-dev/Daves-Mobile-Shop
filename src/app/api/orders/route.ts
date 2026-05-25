@@ -6,6 +6,7 @@ import { getShippingConfig } from "@/lib/settings";
 import { applyDiscount } from "@/lib/discounts";
 import { DAVE_CARE_PRICES, annualEndsAt, type DaveCarePlanType } from "@/lib/dave-care";
 import { syncOrder } from "@/lib/sheets";
+import { sendOrderConfirmation } from "@/lib/email";
 
 type IncomingItem = {
   type: "phone" | "part";
@@ -164,16 +165,18 @@ export async function POST(req: Request) {
       return order;
     });
 
-    // Push to Sheets (best-effort, ignores failures). Re-read with items
-    // for the row summary.
+    // Push to Sheets + send confirmation email (best-effort, never blocks).
     try {
       const full = await prisma.order.findUnique({
         where: { id: result.id },
         include: { items: { select: { name: true, quantity: true, unitPrice: true, itemType: true } } }
       });
-      if (full) await syncOrder(full);
+      if (full) {
+        await syncOrder(full);
+        await sendOrderConfirmation(full);
+      }
     } catch (err) {
-      console.error("Sheets order sync skipped:", err instanceof Error ? err.message : err);
+      console.error("Post-order notifications skipped:", err instanceof Error ? err.message : err);
     }
 
     return NextResponse.json({ orderNumber: result.orderNumber, total: result.total }, { status: 201 });
